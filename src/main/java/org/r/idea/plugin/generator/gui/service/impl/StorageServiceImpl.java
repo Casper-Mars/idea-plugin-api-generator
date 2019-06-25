@@ -14,7 +14,7 @@ import org.r.idea.plugin.generator.gui.service.StorageService;
  * @Author Casper
  * @DATE 2019/6/10 9:44
  **/
-@State(name = "gui-generator setting", storages = @Storage("api_generator_plugin.xml"))
+@State(name = "api-generator setting", storages = @Storage("api_generator_plugin.xml"))
 public class StorageServiceImpl implements StorageService {
 
 
@@ -46,4 +46,12 @@ public class StorageServiceImpl implements StorageService {
         settingState = state;
     }
 
+
+    /**
+     * This method is called when the component is initialized, but no state is persisted.
+     */
+    @Override
+    public void noStateLoaded() {
+        settingState = SettingState.getDefault();
+    }
 }

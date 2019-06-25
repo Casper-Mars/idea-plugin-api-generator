@@ -1,7 +1,8 @@
 package org.r.idea.plugin.generator.gui.service;
 
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import org.r.idea.plugin.generator.gui.beans.SettingState;
 
 /**
@@ -12,7 +13,11 @@ import org.r.idea.plugin.generator.gui.beans.SettingState;
 public interface StorageService extends PersistentStateComponent<SettingState> {
 
     static StorageService getInstance() {
-        return ServiceManager.getService(StorageService.class);
+        Project[] openProjects = ProjectManager.getInstance().getOpenProjects();
+        if (openProjects.length > 0) {
+            return openProjects[0].getComponent(StorageService.class);
+        }
+        return null;
     }
 
 }

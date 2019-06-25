@@ -50,6 +50,10 @@ public class TestFindClass extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent event) {
 
+        Project project = event.getProject();
+
+        VirtualFile projectFile = project.getProjectFile();
+        VirtualFile workspaceFile = project.getWorkspaceFile();
 
         Messages.showInfoMessage("完成", "提示");
     }

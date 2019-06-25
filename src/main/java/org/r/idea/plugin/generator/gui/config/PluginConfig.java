@@ -28,7 +28,6 @@ public class PluginConfig implements SearchableConfigurable {
     /**
      * Unique configurable id. Note this id should be THE SAME as the one specified in XML.
      *
-     * @see ConfigurableEP#id
      */
     @NotNull
     @Override
@@ -63,8 +62,11 @@ public class PluginConfig implements SearchableConfigurable {
         if (null == settingPanel) {
             settingPanel = new SettingPanel();
         }
-
-        return settingPanel.getPanel(storageService.getState());
+        SettingState state = null;
+        if (storageService != null) {
+            state = storageService.getState();
+        }
+        return settingPanel.getPanel(state);
     }
 
     /**
@@ -75,6 +77,9 @@ public class PluginConfig implements SearchableConfigurable {
      */
     @Override
     public boolean isModified() {
+        if (storageService == null) {
+            return false;
+        }
         SettingState state = storageService.getState();
         if (state != null && settingPanel != null) {
             if (!state.getInterfaceFilePaths().equals(settingPanel.getInterfaceFileText())) {
@@ -113,6 +118,8 @@ public class PluginConfig implements SearchableConfigurable {
      */
     @Override
     public void reset() {
-        settingPanel.init(Objects.requireNonNull(storageService.getState()));
+        if (storageService != null && storageService.getState() != null) {
+            settingPanel.init(Objects.requireNonNull(storageService.getState()));
+        }
     }
 }
