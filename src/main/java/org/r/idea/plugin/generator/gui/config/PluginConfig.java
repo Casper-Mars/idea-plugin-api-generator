@@ -2,8 +2,10 @@ package org.r.idea.plugin.generator.gui.config;
 
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
+
 import java.util.Objects;
 import javax.swing.JComponent;
+
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nls.Capitalization;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +29,6 @@ public class PluginConfig implements SearchableConfigurable {
 
     /**
      * Unique configurable id. Note this id should be THE SAME as the one specified in XML.
-     *
      */
     @NotNull
     @Override
@@ -50,7 +51,7 @@ public class PluginConfig implements SearchableConfigurable {
     /**
      * Creates new Swing form that enables user to configure the settings. Usually this method is called on the EDT, so
      * it should not take a long time.
-     *
+     * <p>
      * Also this place is designed to allocate resources (subscriptions/listeners etc.)
      *
      * @return new Swing form to show, or {@code null} if it cannot be created
@@ -82,13 +83,16 @@ public class PluginConfig implements SearchableConfigurable {
         }
         SettingState state = storageService.getState();
         if (state != null && settingPanel != null) {
-            if (!state.getInterfaceFilePaths().equals(settingPanel.getInterfaceFileText())) {
+            if (state.getInterfaceFilePaths() != null && !state.getInterfaceFilePaths().equals(settingPanel.getInterfaceFileText())) {
                 return true;
             }
-            if (!state.getOutputFilePaths().equals(settingPanel.getOutputFileText())) {
+            if (state.getOutputFilePaths() != null && !state.getOutputFilePaths().equals(settingPanel.getOutputFileText())) {
                 return true;
             }
-            if (!state.getBaseClass().equals(settingPanel.getBaseClassText())) {
+            if (state.getBaseClass() != null && !state.getBaseClass().equals(settingPanel.getBaseClassText())) {
+                return true;
+            }
+            if (state.getMarkdownFiles() != null && !state.getMarkdownFiles().equals(settingPanel.getMdText())) {
                 return true;
             }
             return false;
@@ -108,6 +112,7 @@ public class PluginConfig implements SearchableConfigurable {
         state.setInterfaceFilePaths(settingPanel.getInterfaceFileText());
         state.setOutputFilePaths(settingPanel.getOutputFileText());
         state.setBaseClass(settingPanel.getBaseClassText());
+        state.setMarkdownFiles(settingPanel.getMdText());
         storageService.loadState(state);
     }
 

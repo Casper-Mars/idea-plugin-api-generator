@@ -38,24 +38,27 @@ public class ConfigImpl implements Config {
 
     private String workSpace;
 
-    public ConfigImpl(List<String> interfaceFilePaths, String workSpace, String baseClass) {
-        init(new InterfaceParser(), new FileProbe(), new DocBuilderImpl(), new JarBuilderImpl(), interfaceFilePaths, workSpace, baseClass);
+    private String markdownPath;
+
+    public ConfigImpl(List<String> interfaceFilePaths, String workSpace, String baseClass, String markdownPath) {
+        init(new InterfaceParser(), new FileProbe(), new DocBuilderImpl(), new JarBuilderImpl(), interfaceFilePaths, workSpace, baseClass, markdownPath);
     }
 
-    public ConfigImpl(Parser parser, Probe probe, DocBuilder docBuilder,
+    public ConfigImpl(Parser parser, Probe probe, DocBuilder docBuilder, String markdownPath,
                       JarBuilder jarBuilder, List<String> interfaceFilePaths, String workSpace, String baseClass) {
-        init(parser, probe, docBuilder, jarBuilder, interfaceFilePaths, workSpace, baseClass);
+        init(parser, probe, docBuilder, jarBuilder, interfaceFilePaths, workSpace, baseClass, markdownPath);
     }
 
 
     private void init(Parser parser, Probe probe, DocBuilder docBuilder,
-                      JarBuilder jarBuilder, List<String> interfaceFilePaths, String workSpace, String baseClass) {
+                      JarBuilder jarBuilder, List<String> interfaceFilePaths, String workSpace, String baseClass, String markdownPath) {
         this.parser = parser;
         this.probe = probe;
         this.docBuilder = docBuilder;
         this.jarBuilder = jarBuilder;
         this.interfaceFilePaths = interfaceFilePaths.stream().map(this::formatPath).collect(Collectors.toList());
         this.workSpace = formatPath(workSpace);
+        this.markdownPath = formatPath(markdownPath);
         setBaseClass(baseClass);
     }
 
@@ -102,6 +105,11 @@ public class ConfigImpl implements Config {
     @Override
     public String getWorkSpace() {
         return workSpace;
+    }
+
+    @Override
+    public String getMarkdownPath() {
+        return null;
     }
 
 

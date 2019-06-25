@@ -42,5 +42,15 @@ public interface Constants {
      */
     String JAR_FILE_PATH = "BOOT-INF/classes/org/r/api/container/swagger2/controller/";
 
+    /**
+     * markdown文件在jar包中的位置
+     */
+    String JAR_MARKDOWN_PATH = "BOOT-INF/classes/markdown/";
+
+    /**
+     * 临时生成的容器jar包的位置
+     */
+    String COPYOFCONTARINERJAR = "lib/container.jar";
+
 
 }

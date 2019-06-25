@@ -32,10 +32,11 @@ public class SettingPanel {
     private JTextField workSpace;
     private JButton wsBut;
     private JTextField baseClass;
+    private JTextField mdText;
+    private JButton mdBut;
 
     public JComponent getPanel(SettingState state) {
 
-        workSpace.setEnabled(false);
         initTable();
         initButton();
         if (state != null) {
@@ -74,12 +75,20 @@ public class SettingPanel {
                 setOutputFileText(path);
             }
         });
+        mdBut.addActionListener(e -> {
+            List<String> paths = selectPaths();
+            String path = paths.get(0);
+            if (StringUtils.isNotEmpty(path)) {
+                setMdText(path);
+            }
+        });
     }
 
     public void init(SettingState state) {
         setInterfaceFileText(state.getInterfaceFilePaths());
         setOutputFileText(state.getOutputFilePaths());
         setBaseClassText(state.getBaseClass());
+        setMdText(state.getMarkdownFiles());
     }
 
 
@@ -162,6 +171,14 @@ public class SettingPanel {
 
     public void setBaseClassText(String text) {
         baseClass.setText(text);
+    }
+
+    public String getMdText() {
+        return mdText.getText();
+    }
+
+    public void setMdText(String mdText) {
+        this.mdText.setText(mdText);
     }
 
     private boolean isNotVaildPath(String path) {

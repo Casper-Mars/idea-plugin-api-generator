@@ -10,6 +10,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
@@ -19,6 +20,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.r.idea.plugin.generator.core.beans.FileBO;
 import org.r.idea.plugin.generator.core.indicators.InterfaceIndicator;
 import org.r.idea.plugin.generator.core.probe.Probe;
@@ -85,6 +87,7 @@ public class FileProbe implements Probe {
      */
     @Override
     public List<File> searchFile(String searchPath, FileFilter fileFilter) {
+        if (StringUtils.isEmpty(searchPath)) return null;
         File curFile = new File(searchPath);
         if (!curFile.exists()) {
             return null;
@@ -149,7 +152,7 @@ public class FileProbe implements Probe {
             }
         }
         try (BufferedWriter writer = new BufferedWriter(
-            new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
+                new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
             writer.write(content);
             writer.flush();
         } catch (IOException e) {

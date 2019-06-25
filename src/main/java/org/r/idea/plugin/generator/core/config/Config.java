@@ -1,5 +1,6 @@
 package org.r.idea.plugin.generator.core.config;
 
+import java.io.File;
 import java.util.List;
 import org.r.idea.plugin.generator.core.builder.DocBuilder;
 import org.r.idea.plugin.generator.core.builder.JarBuilder;
@@ -26,5 +27,8 @@ public interface Config {
     List<String> getInterfaceFilesPath();
 
     String getWorkSpace();
+
+    String getMarkdownPath();
+
 
 }

@@ -20,6 +20,11 @@ public class SettingState {
      */
     private String baseClass;
 
+    /**
+     * markdown文件的路径
+     */
+    private String markdownFiles;
+
 
     public String getInterfaceFilePaths() {
         return interfaceFilePaths;
@@ -45,11 +50,20 @@ public class SettingState {
         this.baseClass = baseClass;
     }
 
+    public String getMarkdownFiles() {
+        return markdownFiles;
+    }
+
+    public void setMarkdownFiles(String markdownFiles) {
+        this.markdownFiles = markdownFiles;
+    }
+
     public static SettingState getDefault() {
         SettingState settingState = new SettingState();
         settingState.setBaseClass("");
         settingState.setInterfaceFilePaths("");
         settingState.setOutputFilePaths("");
+        settingState.setMarkdownFiles("");
         return settingState;
     }
 

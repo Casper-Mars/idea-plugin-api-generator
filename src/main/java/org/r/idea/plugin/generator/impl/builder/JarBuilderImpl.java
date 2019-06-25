@@ -16,9 +16,12 @@ import java.util.jar.JarOutputStream;
 import java.util.stream.Collectors;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
+
 import org.r.idea.plugin.generator.core.ConfigHolder;
 import org.r.idea.plugin.generator.core.builder.JarBuilder;
+import org.r.idea.plugin.generator.core.builder.JarFileAppender;
 import org.r.idea.plugin.generator.impl.Constants;
+import org.r.idea.plugin.generator.impl.builder.appender.AppenderChain;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
 import org.r.idea.plugin.generator.utils.FileUtils;
 
@@ -33,7 +36,6 @@ public class JarBuilderImpl implements JarBuilder {
      */
     private String contarinerJar = "/container.jar";
 
-    private String copyOfContarinerJar = "lib/container.jar";
     /**
      * 依赖jar在本jar包中的位置
      */
@@ -52,7 +54,7 @@ public class JarBuilderImpl implements JarBuilder {
 
         /*查询所有的源文件*/
         List<File> fileList = ConfigHolder.getConfig().getFileProbe()
-            .searchFile(srcDir, pathname -> pathname.getName().endsWith(".java"));
+                .searchFile(srcDir, pathname -> pathname.getName().endsWith(".java"));
         List<String> srcJava = fileList.stream().map(File::getAbsolutePath).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(srcJava)) {
             System.out.println("源文件不存在");
@@ -61,11 +63,23 @@ public class JarBuilderImpl implements JarBuilder {
         /*复制编译环境*/
         copyJar(dependenciesJar, workSpace + copyOfDependenciesJar);
         /*复制容器*/
-        copyJar(contarinerJar, workSpace + copyOfContarinerJar);
+        copyJar(contarinerJar, workSpace + Constants.COPYOFCONTARINERJAR);
         /*编译源文件,并储存为临时文件*/
-        List<File> clazz = compile(srcJava, workSpace);
+        compile(srcJava, workSpace);
+        /*获取appender链*/
+        List<JarFileAppender> appenderChain = AppenderChain.getAppenderChain();
         /*copy容器*/
-        generateContainer(clazz, workSpace);
+        File targetJar = new File(workSpace + productJar);
+        try (JarOutputStream out = new JarOutputStream(new FileOutputStream(targetJar))) {
+            /*复制文件*/
+            for (JarFileAppender appender : appenderChain) {
+                appender.copyFileToJar(out);
+            }
+            out.finish();
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
     }
@@ -78,8 +92,8 @@ public class JarBuilderImpl implements JarBuilder {
             }
         }
         try (
-            InputStream in = this.getClass().getResourceAsStream(src);
-            OutputStream out = new FileOutputStream(dependence)
+                InputStream in = this.getClass().getResourceAsStream(src);
+                OutputStream out = new FileOutputStream(dependence)
         ) {
             FileUtils.copy(out, in);
         } catch (IOException e) {
@@ -91,10 +105,10 @@ public class JarBuilderImpl implements JarBuilder {
     /**
      * 编译源文件并输入到指定的临时目录
      *
-     * @param javaSrc 源文件路径信息
+     * @param javaSrc   源文件路径信息
      * @param workSpace 工作空间
      */
-    private List<File> compile(List<String> javaSrc, String workSpace) {
+    private void compile(List<String> javaSrc, String workSpace) {
 
         String classOutputPath = workSpace + Constants.TMP_CLASS_DIR;
         /*判读目录是否存在*/
@@ -125,13 +139,6 @@ public class JarBuilderImpl implements JarBuilder {
             throw new RuntimeException("无法获取编译器");
         }
         javac.run(null, null, null, filenames);
-        /*获取class文件路径信息*/
-        List<File> clazz = ConfigHolder.getConfig().getFileProbe()
-            .searchFile(classOutputPath, pathname -> pathname.getName().endsWith(".class"));
-        if (CollectionUtils.isEmpty(clazz)) {
-            throw new RuntimeException("编译失败");
-        }
-        return clazz;
     }
 
     /**
@@ -150,48 +157,5 @@ public class JarBuilderImpl implements JarBuilder {
         }
         return javac;
     }
-
-
-    /**
-     * 生产容器
-     */
-    private void generateContainer(List<File> clazzs, String workSpace) {
-        /*获取容器*/
-        File targetJar = new File(workSpace + productJar);
-        InputStream in = null;
-        try (
-            JarOutputStream out = new JarOutputStream(new FileOutputStream(targetJar));
-        ) {
-            JarFile container = new JarFile(workSpace + copyOfContarinerJar);
-            Enumeration<JarEntry> entries = container.entries();
-            while (entries.hasMoreElements()) {
-                JarEntry entry = entries.nextElement();
-                out.putNextEntry(entry);
-                FileUtils.copy(out, container.getInputStream(entry));
-            }
-            container.close();
-            for (File file : clazzs) {
-                JarEntry entry = new JarEntry(Constants.JAR_FILE_PATH + file.getName());
-                out.putNextEntry(entry);
-                in = new FileInputStream(file);
-                FileUtils.copy(out, in);
-                in.close();
-            }
-            out.finish();
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-    }
-
 
 }
