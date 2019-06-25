@@ -64,11 +64,6 @@ public class PojoParser {
         ParamNode paramNode = new ParamNode();
         /*先判断是否为基本类型*/
         if (Utils.isBaseClass(qualifiedName)) {
-            System.out.println("            类：" + qualifiedName + "     是基本类：");
-        } else {
-            System.out.println("            类：" + qualifiedName + "     不是基本类：");
-        }
-        if (Utils.isBaseClass(qualifiedName)) {
             paramNode.setTypeQualifiedName(qualifiedName);
         } else {
             Project defaultProject = ProjectManager.getInstance().getOpenProjects()[0];

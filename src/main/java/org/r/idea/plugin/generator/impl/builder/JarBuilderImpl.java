@@ -105,7 +105,7 @@ public class JarBuilderImpl implements JarBuilder {
             }
         }
         /*构建编译参数*/
-        int ext = 6;
+        int ext = 7;
         String[] filenames = new String[javaSrc.size() + ext];
         int i = 0;
 
@@ -115,6 +115,7 @@ public class JarBuilderImpl implements JarBuilder {
         filenames[i++] = classOutputPath;
         filenames[i++] = "-encoding";
         filenames[i++] = "UTF-8";
+        filenames[i++] = "-parameters";
         for (String path : javaSrc) {
             filenames[i++] = path;
         }
