@@ -83,16 +83,16 @@ public class PluginConfig implements SearchableConfigurable {
         }
         SettingState state = storageService.getState();
         if (state != null && settingPanel != null) {
-            if (state.getInterfaceFilePaths() != null && !state.getInterfaceFilePaths().equals(settingPanel.getInterfaceFileText())) {
+            if (!settingPanel.getInterfaceFileText().equals(state.getInterfaceFilePaths())) {
                 return true;
             }
-            if (state.getOutputFilePaths() != null && !state.getOutputFilePaths().equals(settingPanel.getOutputFileText())) {
+            if (!settingPanel.getOutputFileText().equals(state.getOutputFilePaths())) {
                 return true;
             }
-            if (state.getBaseClass() != null && !state.getBaseClass().equals(settingPanel.getBaseClassText())) {
+            if (!settingPanel.getBaseClassText().equals(state.getBaseClass())) {
                 return true;
             }
-            if (state.getMarkdownFiles() != null && !state.getMarkdownFiles().equals(settingPanel.getMdText())) {
+            if (!settingPanel.getMdText().equals(state.getMarkdownFiles())) {
                 return true;
             }
             return false;

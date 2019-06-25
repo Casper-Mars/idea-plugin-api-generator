@@ -109,7 +109,7 @@ public class ConfigImpl implements Config {
 
     @Override
     public String getMarkdownPath() {
-        return null;
+        return markdownPath;
     }
 
 
