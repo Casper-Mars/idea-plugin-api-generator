@@ -77,6 +77,10 @@ public class PojoParser {
             paramNode.setTypeQualifiedName(target.getQualifiedName());
             List<Node> children = new ArrayList<>();
             for (PsiField field : target.getFields()) {
+                /*如果实体类出现自引用则不解析*/
+                if (field.getType().getCanonicalText().equals(target.getQualifiedName())) {
+                    continue;
+                }
                 ParamNode child = parse(field.getType().getCanonicalText());
                 child.setName(field.getName());
                 if (field.getDocComment() == null) {
