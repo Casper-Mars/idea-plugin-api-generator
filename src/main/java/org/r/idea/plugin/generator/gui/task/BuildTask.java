@@ -14,16 +14,19 @@ import com.intellij.ui.awt.RelativePoint;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nls.Capitalization;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.r.idea.plugin.generator.core.ConfigHolder;
 import org.r.idea.plugin.generator.core.beans.FileBO;
+import org.r.idea.plugin.generator.core.builder.DocBuilder;
+import org.r.idea.plugin.generator.core.builder.JarBuilder;
 import org.r.idea.plugin.generator.core.config.Config;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.nodes.Node;
+import org.r.idea.plugin.generator.core.parser.Parser;
+import org.r.idea.plugin.generator.core.probe.Probe;
 import org.r.idea.plugin.generator.gui.beans.SettingState;
 import org.r.idea.plugin.generator.gui.service.StorageService;
 import org.r.idea.plugin.generator.impl.Constants;
@@ -38,6 +41,7 @@ public class BuildTask extends Task.Backgroundable {
 
     private String title;
     private Project project;
+    private ProgressIndicator indicator;
 
 
     public BuildTask(@Nullable Project project,
@@ -50,47 +54,18 @@ public class BuildTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator indicator) {
         long start = System.currentTimeMillis();
+        this.indicator = indicator;
         indicator.setIndeterminate(true);
-        StorageService storageService = StorageService.getInstance();
-        SettingState state = storageService.getState();
-        double precent = 0.0;
-        if (state == null || project == null) {
-            throw new RuntimeException("程序异常");
-        }
-        precent += 0.1;
-        indicator.setFraction(precent);
-        this.setTitle("search file");
-        Config config = getConfig(state);
-        AtomicReference<List<PsiClass>> allInterfaceClass = new AtomicReference<>();
-        ApplicationManager.getApplication().runReadAction(
-            () -> allInterfaceClass.set(config.getFileProbe().getAllInterfaceClass(config.getInterfaceFilesPath())));
-        precent += 0.1;
-        indicator.setFraction(precent);
-        this.setTitle("parsing file");
-        List<Node> interfaceNode = new ArrayList<>();
-        ApplicationManager.getApplication().runReadAction(() -> {
-            double total = allInterfaceClass.get().size();
-            double count = 0;
-            double cur = indicator.getFraction();
-            for (PsiClass target : allInterfaceClass.get()) {
-                try {
-                    Node parse = config.getInterfaceParser().parse(target);
-                    interfaceNode.add(parse);
-                    count++;
-                    cur += (count / total) * 0.4;
-                    indicator.setFraction(cur);
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        this.setTitle("building");
-        List<FileBO> docList = config.getDocBuilder().buildDoc(interfaceNode);
-        precent += 0.2;
-        indicator.setFraction(precent);
-        this.setTitle("generating");
-        String srcDir = config.getFileProbe().saveDoc(docList, config.getWorkSpace());
-        config.getJarBuilder().buildJar(srcDir, config.getWorkSpace());
+        /*获取配置*/
+        Config config = getConfig();
+        /*搜索接口文件*/
+        List<PsiClass> psiClasses = searchAllInterface(config);
+        /*转化接口*/
+        List<Node> nodes = parseFile(config.getInterfaceParser(), psiClasses);
+        /*生成文档源文件*/
+        List<FileBO> fileBOS = buildDoc(config.getDocBuilder(), nodes);
+        /*生成jar包*/
+        buildJar(config.getFileProbe(), config.getJarBuilder(), config.getWorkSpace(), fileBOS);
         indicator.setFraction(1.0);
         indicator.setText("finish");
 
@@ -104,24 +79,71 @@ public class BuildTask extends Task.Backgroundable {
 
     }
 
-    private Config getConfig(SettingState state) {
-
+    private Config getConfig() {
+        this.setTitle("init");
+        StorageService storageService = StorageService.getInstance();
+        if (storageService == null) {
+            throw new RuntimeException("请先打开项目");
+        }
+        SettingState state = storageService.getState();
+        if (state == null || project == null) {
+            throw new RuntimeException("程序异常");
+        }
         List<String> interfacePath = new ArrayList<>(
             Arrays.asList(state.getInterfaceFilePaths().split(Constants.SPLITOR)));
         Config config = new ConfigImpl(interfacePath, state.getOutputFilePaths(), state.getBaseClass());
         ConfigHolder.setConfig(config);
+        updateProgress(0.1f);
         return config;
     }
 
-    private List<PsiClass> searchAllInterface(Config config, ProgressIndicator indicator) {
-        double cur = indicator.getFraction();
-        AtomicReference<List<PsiClass>> allInterfaceClass = new AtomicReference<>();
+    private List<PsiClass> searchAllInterface(Config config) {
+        this.setTitle("search file");
+        List<PsiClass> allInterfaceClass = new ArrayList<>();
         ApplicationManager.getApplication().runReadAction(() -> {
-            allInterfaceClass.set(config.getFileProbe().getAllInterfaceClass(config.getInterfaceFilesPath()));
+            allInterfaceClass.addAll(config.getFileProbe().getAllInterfaceClass(config.getInterfaceFilesPath()));
         });
-        cur += 0.2;
-        indicator.setFraction(cur);
-        return allInterfaceClass.get();
+        updateProgress(0.1f);
+        return allInterfaceClass;
+    }
+
+    private List<Node> parseFile(Parser parser, List<PsiClass> allInterfaceClass) {
+        this.setTitle("parsing file");
+        List<Node> interfaceNode = new ArrayList<>();
+        ApplicationManager.getApplication().runReadAction(() -> {
+            float total = allInterfaceClass.size();
+            float count = 0;
+            for (PsiClass target : allInterfaceClass) {
+                try {
+                    Node parse = parser.parse(target);
+                    interfaceNode.add(parse);
+                    count++;
+                    updateProgress((count / total) * 0.4f);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        return interfaceNode;
+    }
+
+
+    private List<FileBO> buildDoc(DocBuilder docBuilder, List<Node> interfaceNode) {
+        this.setTitle("building");
+        List<FileBO> docList = docBuilder.buildDoc(interfaceNode);
+        updateProgress(0.2f);
+        return docList;
+    }
+
+    public void buildJar(Probe probe, JarBuilder jarBuilder, String workSpace, List<FileBO> docList) {
+        this.setTitle("generating");
+        String srcDir = probe.saveDoc(docList, workSpace);
+        jarBuilder.buildJar(srcDir, workSpace);
+        updateProgress(0.2f);
+    }
+
+    private void updateProgress(float f) {
+        indicator.setFraction(indicator.getFraction() + f);
     }
 
 

@@ -62,11 +62,11 @@
   <actions>
     <action id="Generator.api.generate" class="org.r.idea.plugin.generator.gui.actions.Generate" text="Generate api doc"
       description="generate the api doc">
+      <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl alt G"/>
       <add-to-group group-id="ToolsMenu" anchor="last"/>
     </action>
     <action id="Generator.api.TestFindClass" class="org.r.idea.plugin.generator.gui.actions.TestFindClass"
       text="TestFindClass" description="TestFindClass">
-      <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl alt G"/>
       <add-to-group group-id="ToolsMenu" anchor="last"/>
     </action>
   </actions>
