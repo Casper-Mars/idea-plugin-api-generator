@@ -140,7 +140,10 @@ public class JarBuilderImpl implements JarBuilder {
         if (javac == null) {
             throw new RuntimeException("无法获取编译器");
         }
-        javac.run(null, null, null, filenames);
+        int result = javac.run(null, null, null, filenames);
+        if (result != 0) {
+            throw new RuntimeException("编译失败");
+        }
     }
 
     /**
