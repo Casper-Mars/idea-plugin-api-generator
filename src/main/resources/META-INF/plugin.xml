@@ -6,10 +6,8 @@
   <idea-version since-build="181" until-build="191.*"/>
 
   <description><![CDATA[
-    <h1>文档生成器</h1>
-
+<h1>文档生成器</h1>
 <h2>说明</h2>
-
 <p>   生成器基于spring boot、swagger2和肖玉明的swagger-ui。设置好参数后一键生成文档，并打成可运行jar包，只需在命令行中执行java -jar
    container.jar，即可在浏览器中访问:localhost:8080/doc.html</p>
 <h2>接口解析规则</h2>
@@ -36,6 +34,9 @@
   <em> 返回值：
        </em> 类型：String
        * 格式：array</p>
+       <h2>模式：debug和生产</h2>
+
+<ul><li>debug模式：在此模式下，会保留程序运行过程中的临时文件，包括java源文件、class文件、依赖jar包和容器jar包。debug模式只有开发时才能用，一旦部署后就是生产模式了。</li><li>生产模式：在此模式下，只会保留最终的产物</li></ul>
     ]]></description>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
@@ -48,8 +49,8 @@
     <!-- Add your extensions here -->
     <applicationConfigurable id="api-generator" displayName="api-generator"
       instance="org.r.idea.plugin.generator.gui.config.PluginConfig"/>
-<!--    <projectService serviceInterface="org.r.idea.plugin.generator.gui.service.StorageService"-->
-<!--      serviceImplementation="org.r.idea.plugin.generator.gui.service.impl.StorageServiceImpl"/>-->
+    <!--    <projectService serviceInterface="org.r.idea.plugin.generator.gui.service.StorageService"-->
+    <!--      serviceImplementation="org.r.idea.plugin.generator.gui.service.impl.StorageServiceImpl"/>-->
   </extensions>
 
   <project-components>
