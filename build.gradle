@@ -4,7 +4,7 @@ plugins {
 }
 def ideaVersion = '2019.1'
 def pluginGroup = 'org.r.idea.plugin'
-def pluginVersion = '1.3' + "-" + ideaVersion
+def pluginVersion = '1.4' + "-" + ideaVersion
 
 
 group pluginGroup
@@ -15,7 +15,7 @@ sourceCompatibility = 1.8
 repositories {
     mavenCentral()
     mavenLocal()
-    maven { url "file://F:/maven/repository" }
+    maven { url "file://D:/maven/repository" }
 }
 
 dependencies {
