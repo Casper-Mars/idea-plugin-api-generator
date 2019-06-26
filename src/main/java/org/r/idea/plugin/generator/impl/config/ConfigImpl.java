@@ -40,22 +40,33 @@ public class ConfigImpl implements Config {
 
     private String markdownPath;
 
+    private boolean isDebug;
+
     public ConfigImpl(List<String> interfaceFilePaths, String workSpace, String baseClass, String markdownPath) {
-        init(new InterfaceParser(), new FileProbe(), new DocBuilderImpl(), new JarBuilderImpl(), interfaceFilePaths, workSpace, baseClass, markdownPath);
+        init(new InterfaceParser(), new FileProbe(), new DocBuilderImpl(), new JarBuilderImpl(), interfaceFilePaths,
+            workSpace, baseClass, markdownPath, false);
+    }
+
+    public ConfigImpl(List<String> interfaceFilePaths, String workSpace, String baseClass, String markdownPath,
+        boolean isDebug) {
+        init(new InterfaceParser(), new FileProbe(), new DocBuilderImpl(), new JarBuilderImpl(), interfaceFilePaths,
+            workSpace, baseClass, markdownPath, isDebug);
     }
 
     public ConfigImpl(Parser parser, Probe probe, DocBuilder docBuilder, String markdownPath,
-                      JarBuilder jarBuilder, List<String> interfaceFilePaths, String workSpace, String baseClass) {
-        init(parser, probe, docBuilder, jarBuilder, interfaceFilePaths, workSpace, baseClass, markdownPath);
+        JarBuilder jarBuilder, List<String> interfaceFilePaths, String workSpace, String baseClass, boolean isDebug) {
+        init(parser, probe, docBuilder, jarBuilder, interfaceFilePaths, workSpace, baseClass, markdownPath, isDebug);
     }
 
 
     private void init(Parser parser, Probe probe, DocBuilder docBuilder,
-                      JarBuilder jarBuilder, List<String> interfaceFilePaths, String workSpace, String baseClass, String markdownPath) {
+        JarBuilder jarBuilder, List<String> interfaceFilePaths, String workSpace, String baseClass,
+        String markdownPath, boolean isDebug) {
         this.parser = parser;
         this.probe = probe;
         this.docBuilder = docBuilder;
         this.jarBuilder = jarBuilder;
+        this.isDebug = isDebug;
         this.interfaceFilePaths = interfaceFilePaths.stream().map(this::formatPath).collect(Collectors.toList());
         this.workSpace = formatPath(workSpace);
         this.markdownPath = formatPath(markdownPath);
@@ -64,8 +75,9 @@ public class ConfigImpl implements Config {
 
 
     public void setBaseClass(String baseClass) {
-        if (StringUtils.isNotEmpty(baseClass))
+        if (StringUtils.isNotEmpty(baseClass)) {
             Utils.baseClass = merge(baseClass.split(Constants.SPLITOR), Utils.baseClass);
+        }
     }
 
     private String[] merge(String[] arr1, String[] arr2) {
@@ -112,6 +124,10 @@ public class ConfigImpl implements Config {
         return markdownPath;
     }
 
+    @Override
+    public boolean isDebug() {
+        return this.isDebug;
+    }
 
     private String formatPath(String path) {
         if (StringUtils.isEmpty(path) || path.endsWith("/")) {

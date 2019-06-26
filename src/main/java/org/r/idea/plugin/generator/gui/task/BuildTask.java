@@ -91,8 +91,11 @@ public class BuildTask extends Task.Backgroundable {
         }
         List<String> interfacePath = new ArrayList<>(
             Arrays.asList(state.getInterfaceFilePaths().split(Constants.SPLITOR)));
-        Config config = new ConfigImpl(interfacePath, state.getOutputFilePaths(), state.getBaseClass(),state.getMarkdownFiles());
+        Config config = new ConfigImpl(interfacePath, state.getOutputFilePaths(), state.getBaseClass(),
+            state.getMarkdownFiles());
+
         ConfigHolder.setConfig(config);
+
         updateProgress(0.1f);
         return config;
     }

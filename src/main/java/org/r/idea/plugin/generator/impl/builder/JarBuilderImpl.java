@@ -1,17 +1,13 @@
 package org.r.idea.plugin.generator.impl.builder;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.stream.Collectors;
 import javax.tools.JavaCompiler;
@@ -54,7 +50,7 @@ public class JarBuilderImpl implements JarBuilder {
 
         /*查询所有的源文件*/
         List<File> fileList = ConfigHolder.getConfig().getFileProbe()
-                .searchFile(srcDir, pathname -> pathname.getName().endsWith(".java"));
+            .searchFile(srcDir, pathname -> pathname.getName().endsWith(".java"));
         List<String> srcJava = fileList.stream().map(File::getAbsolutePath).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(srcJava)) {
             System.out.println("源文件不存在");
@@ -80,7 +76,11 @@ public class JarBuilderImpl implements JarBuilder {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        /*如果是debug模式，则不处理，否则删除所有临时文件*/
+        if (!ConfigHolder.getConfig().isDebug()) {
+            /*清除所有的临时文件*/
+            eraseTempFile(workSpace);
+        }
 
     }
 
@@ -92,8 +92,8 @@ public class JarBuilderImpl implements JarBuilder {
             }
         }
         try (
-                InputStream in = this.getClass().getResourceAsStream(src);
-                OutputStream out = new FileOutputStream(dependence)
+            InputStream in = this.getClass().getResourceAsStream(src);
+            OutputStream out = new FileOutputStream(dependence)
         ) {
             FileUtils.copy(out, in);
         } catch (IOException e) {
@@ -105,7 +105,7 @@ public class JarBuilderImpl implements JarBuilder {
     /**
      * 编译源文件并输入到指定的临时目录
      *
-     * @param javaSrc   源文件路径信息
+     * @param javaSrc 源文件路径信息
      * @param workSpace 工作空间
      */
     private void compile(List<String> javaSrc, String workSpace) {
@@ -157,5 +157,22 @@ public class JarBuilderImpl implements JarBuilder {
         }
         return javac;
     }
+
+
+    private void eraseTempFile(String workSpace) {
+
+        try {
+            /*删除java文件夹*/
+            FileUtils.deleteDir(new File(workSpace + "java/"));
+            /*删除class文件夹*/
+            FileUtils.deleteDir(new File(workSpace + "class/"));
+            /*删除lib文件夹*/
+            FileUtils.deleteDir(new File(workSpace + "lib/"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
 }
