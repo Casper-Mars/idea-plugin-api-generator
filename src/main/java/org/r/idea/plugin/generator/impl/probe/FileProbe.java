@@ -37,7 +37,7 @@ import org.r.idea.plugin.generator.utils.StringUtils;
 public class FileProbe implements Probe {
 
 
-    private InterfaceIndicator interfaceIndicator = new InterfaceIndicatorImpl();
+    private InterfaceIndicator interfaceIndicator = InterfaceIndicator.getInstance();
 
     /**
      * 获取全部的接口文件
@@ -61,25 +61,6 @@ public class FileProbe implements Probe {
             }
         }
         return result;
-    }
-
-    /**
-     *
-     */
-    @Override
-    public String saveDoc(List<FileBO> docList, String workSpace) {
-        if (CollectionUtils.isEmpty(docList)) {
-            return null;
-        }
-        String filePrefix = workSpace + Constants.TMP_JAVA_DIR;
-        for (FileBO fileBO : docList) {
-            if (StringUtils.isEmpty(fileBO.getPresentName())) {
-                // TODO: 2019/6/24 文件名为空时应该记录下来
-                continue;
-            }
-            writerFile(filePrefix + fileBO.getPresentName(), fileBO.getContent());
-        }
-        return filePrefix;
     }
 
     /**
@@ -144,7 +125,8 @@ public class FileProbe implements Probe {
     }
 
 
-    private void writerFile(String filename, String content) {
+    @Override
+    public void writerFile(String filename, String content) {
         File file = new File(filename);
         if (!file.getParentFile().exists()) {
             if (!file.getParentFile().mkdirs()) {

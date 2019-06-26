@@ -9,6 +9,8 @@ import com.intellij.psi.search.GlobalSearchScope;
 import java.util.ArrayList;
 import java.util.List;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
+import org.r.idea.plugin.generator.core.indicators.GenericityIndicator;
+import org.r.idea.plugin.generator.core.indicators.InterfaceIndicator;
 import org.r.idea.plugin.generator.impl.Constants;
 import org.r.idea.plugin.generator.impl.Utils;
 import org.r.idea.plugin.generator.core.indicators.IndicatorFactory;
@@ -22,6 +24,7 @@ import org.r.idea.plugin.generator.impl.nodes.ParamNode;
  **/
 public class PojoParser {
 
+    private GenericityIndicator genericityIndicator = GenericityIndicator.getInstance();
 
     public ParamNode parse(String qualifiedName) throws ClassNotFoundException {
 
@@ -29,7 +32,7 @@ public class PojoParser {
 
         List<String> typeParams = new ArrayList<>();
         /*判断是否泛型*/
-        if (!IndicatorFactory.getGenericityIndicator().isGenricityType(qualifiedName, typeParams)) {
+        if (!genericityIndicator.isGenricityType(qualifiedName, typeParams)) {
             /*非泛型*/
             String type = isArray(qualifiedName);
             boolean isArray = type.length() < qualifiedName.length();

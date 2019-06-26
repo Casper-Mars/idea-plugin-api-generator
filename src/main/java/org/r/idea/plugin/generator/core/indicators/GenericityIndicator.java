@@ -9,6 +9,9 @@ import java.util.List;
  **/
 public interface GenericityIndicator {
 
+    static GenericityIndicator getInstance() {
+        return IndicatorFactory.get(GenericityIndicator.class);
+    }
 
     /**
      * 指示是否为泛型类型，如果是返回true，并把实际类型放进param中，否则返回false，

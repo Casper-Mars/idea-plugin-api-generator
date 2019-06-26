@@ -17,6 +17,12 @@ import java.util.jar.JarOutputStream;
  * @DATE 2019/6/25 22:11
  **/
 public class ContainJarAppender implements JarFileAppender {
+
+    //static {
+    //    AppenderChain.addNode(new ContainJarAppender());
+    //}
+
+
     @Override
     public void copyFileToJar(JarOutputStream out) {
         Config config = ConfigHolder.getConfig();

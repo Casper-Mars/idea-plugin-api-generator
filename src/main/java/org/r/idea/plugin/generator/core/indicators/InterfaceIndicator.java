@@ -9,6 +9,9 @@ import com.intellij.psi.PsiClass;
  **/
 public interface InterfaceIndicator {
 
+    static InterfaceIndicator getInstance() {
+        return IndicatorFactory.get(InterfaceIndicator.class);
+    }
 
     boolean isInterface(PsiClass psiClass);
 

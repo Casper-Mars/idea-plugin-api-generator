@@ -8,6 +8,8 @@ import java.util.jar.JarOutputStream;
  **/
 public interface JarFileAppender {
 
+
+
     void copyFileToJar(JarOutputStream out);
 
 
