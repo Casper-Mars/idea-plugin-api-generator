@@ -27,14 +27,6 @@ import org.r.idea.plugin.generator.utils.StringUtils;
 public class ConfigImpl implements Config {
 
 
-    private Parser parser;
-
-    private Probe probe;
-
-    private DocBuilder docBuilder;
-
-    private JarBuilder jarBuilder;
-
     private List<String> interfaceFilePaths;
 
     private String workSpace;
@@ -44,29 +36,17 @@ public class ConfigImpl implements Config {
     private boolean isDebug;
 
     public ConfigImpl(List<String> interfaceFilePaths, String workSpace, String baseClass, String markdownPath) {
-        init(new InterfaceParser(), new FileProbe(), new DocBuilderImpl(), new JarBuilderImpl(), interfaceFilePaths,
-            workSpace, baseClass, markdownPath, false);
+        init(interfaceFilePaths,workSpace, baseClass, markdownPath, false);
     }
 
     public ConfigImpl(List<String> interfaceFilePaths, String workSpace, String baseClass, String markdownPath,
         boolean isDebug) {
-        init(new InterfaceParser(), new FileProbe(), new DocBuilderImpl(), new JarBuilderImpl(), interfaceFilePaths,
-            workSpace, baseClass, markdownPath, isDebug);
-    }
-
-    public ConfigImpl(Parser parser, Probe probe, DocBuilder docBuilder, String markdownPath,
-        JarBuilder jarBuilder, List<String> interfaceFilePaths, String workSpace, String baseClass, boolean isDebug) {
-        init(parser, probe, docBuilder, jarBuilder, interfaceFilePaths, workSpace, baseClass, markdownPath, isDebug);
+        init(interfaceFilePaths,workSpace, baseClass, markdownPath, isDebug);
     }
 
 
-    private void init(Parser parser, Probe probe, DocBuilder docBuilder,
-        JarBuilder jarBuilder, List<String> interfaceFilePaths, String workSpace, String baseClass,
+    private void init(List<String> interfaceFilePaths, String workSpace, String baseClass,
         String markdownPath, boolean isDebug) {
-        this.parser = parser;
-        this.probe = probe;
-        this.docBuilder = docBuilder;
-        this.jarBuilder = jarBuilder;
         this.isDebug = isDebug;
         this.markdownPath = formatPath(markdownPath);
         setBaseClass(baseClass);
@@ -88,26 +68,6 @@ public class ConfigImpl implements Config {
 
         list1.addAll(list2);
         return list1.stream().distinct().filter(t -> !StringUtils.isEmpty(t)).toArray(String[]::new);
-    }
-
-    @Override
-    public Parser getInterfaceParser() {
-        return parser;
-    }
-
-    @Override
-    public Probe getFileProbe() {
-        return probe;
-    }
-
-    @Override
-    public DocBuilder getDocBuilder() {
-        return docBuilder;
-    }
-
-    @Override
-    public JarBuilder getJarBuilder() {
-        return jarBuilder;
     }
 
     @Override

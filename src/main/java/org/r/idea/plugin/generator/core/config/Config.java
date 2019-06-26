@@ -16,14 +16,6 @@ import org.r.idea.plugin.generator.core.probe.Probe;
 public interface Config {
 
 
-    Parser getInterfaceParser();
-
-    Probe getFileProbe();
-
-    DocBuilder getDocBuilder();
-
-    JarBuilder getJarBuilder();
-
     List<String> getInterfaceFilesPath();
 
     String getWorkSpace();

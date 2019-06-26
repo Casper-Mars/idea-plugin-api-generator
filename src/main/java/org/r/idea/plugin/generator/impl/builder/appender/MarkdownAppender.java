@@ -2,10 +2,10 @@ package org.r.idea.plugin.generator.impl.builder.appender;
 
 import org.r.idea.plugin.generator.core.ConfigHolder;
 import org.r.idea.plugin.generator.core.builder.JarFileAppender;
+import org.r.idea.plugin.generator.core.probe.Probe;
 import org.r.idea.plugin.generator.impl.Constants;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
 import org.r.idea.plugin.generator.utils.FileUtils;
-import org.r.idea.plugin.generator.utils.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,14 +20,21 @@ import java.util.jar.JarOutputStream;
  * @DATE 2019/6/25 21:54
  **/
 public class MarkdownAppender implements JarFileAppender {
+
+    //static {
+    //    AppenderChain.addNode(new MarkdownAppender());
+    //}
+
     @Override
     public void copyFileToJar(JarOutputStream out) {
 
         String markdownPath = ConfigHolder.getConfig().getMarkdownPath();
         /*获取markdown文件路径信息*/
-        List<File> markdowns = ConfigHolder.getConfig().getFileProbe()
-                .searchFile(markdownPath, pathname -> pathname.getName().endsWith(".md"));
-        if (CollectionUtils.isEmpty(markdowns)) return;
+        List<File> markdowns = Probe.getInstance()
+            .searchFile(markdownPath, pathname -> pathname.getName().endsWith(".md"));
+        if (CollectionUtils.isEmpty(markdowns)) {
+            return;
+        }
         InputStream in = null;
         try {
             for (File file : markdowns) {

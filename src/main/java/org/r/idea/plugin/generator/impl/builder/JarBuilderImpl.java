@@ -16,6 +16,8 @@ import javax.tools.ToolProvider;
 import org.r.idea.plugin.generator.core.ConfigHolder;
 import org.r.idea.plugin.generator.core.builder.JarBuilder;
 import org.r.idea.plugin.generator.core.builder.JarFileAppender;
+import org.r.idea.plugin.generator.core.config.ServerManager;
+import org.r.idea.plugin.generator.core.probe.Probe;
 import org.r.idea.plugin.generator.impl.Constants;
 import org.r.idea.plugin.generator.impl.builder.appender.AppenderChain;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
@@ -49,7 +51,7 @@ public class JarBuilderImpl implements JarBuilder {
     public void buildJar(String srcDir, String workSpace) {
 
         /*查询所有的源文件*/
-        List<File> fileList = ConfigHolder.getConfig().getFileProbe()
+        List<File> fileList = ServerManager.getServer(Probe.class)
             .searchFile(srcDir, pathname -> pathname.getName().endsWith(".java"));
         List<String> srcJava = fileList.stream().map(File::getAbsolutePath).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(srcJava)) {

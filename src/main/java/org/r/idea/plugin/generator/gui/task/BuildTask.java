@@ -15,6 +15,7 @@ import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.ui.awt.RelativePoint;
+import com.intellij.util.io.Compressor.Jar;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +28,7 @@ import org.r.idea.plugin.generator.core.beans.FileBO;
 import org.r.idea.plugin.generator.core.builder.DocBuilder;
 import org.r.idea.plugin.generator.core.builder.JarBuilder;
 import org.r.idea.plugin.generator.core.config.Config;
+import org.r.idea.plugin.generator.core.config.ServerManager;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.nodes.Node;
 import org.r.idea.plugin.generator.core.parser.Parser;
@@ -34,7 +36,11 @@ import org.r.idea.plugin.generator.core.probe.Probe;
 import org.r.idea.plugin.generator.gui.beans.SettingState;
 import org.r.idea.plugin.generator.gui.service.StorageService;
 import org.r.idea.plugin.generator.impl.Constants;
+import org.r.idea.plugin.generator.impl.builder.DocBuilderImpl;
+import org.r.idea.plugin.generator.impl.builder.JarBuilderImpl;
 import org.r.idea.plugin.generator.impl.config.ConfigImpl;
+import org.r.idea.plugin.generator.impl.parser.InterfaceParser;
+import org.r.idea.plugin.generator.impl.probe.FileProbe;
 import org.r.idea.plugin.generator.utils.StringUtils;
 
 /**
@@ -66,7 +72,7 @@ public class BuildTask extends Task.Backgroundable {
         Config config = getConfig();
         if (config == null) {
             JBPopupFactory.getInstance()
-                .createHtmlTextBalloonBuilder("配置有误，请确保接口目录和输出目录不为空" , MessageType.INFO, null)
+                .createHtmlTextBalloonBuilder("配置有误，请确保接口目录和输出目录不为空", MessageType.INFO, null)
                 .setFadeoutTime(7500)
                 .createBalloon()
                 .show(RelativePoint.getCenterOf(statusBar.getComponent()), Position.atRight);
@@ -75,11 +81,11 @@ public class BuildTask extends Task.Backgroundable {
         /*搜索接口文件*/
         List<PsiClass> psiClasses = searchAllInterface(config);
         /*转化接口*/
-        List<Node> nodes = parseFile(config.getInterfaceParser(), psiClasses);
+        List<Node> nodes = parseFile(Parser.getInstance(), psiClasses);
         /*生成文档源文件*/
-        List<FileBO> fileBOS = buildDoc(config.getDocBuilder(), nodes);
+        String srcDir = buildDoc(DocBuilder.getInstance(), nodes);
         /*生成jar包*/
-        buildJar(config.getFileProbe(), config.getJarBuilder(), config.getWorkSpace(), fileBOS);
+        buildJar(JarBuilder.getInstance(), config.getWorkSpace(), srcDir);
         indicator.setFraction(1.0);
         indicator.setText("finish");
 
@@ -108,10 +114,16 @@ public class BuildTask extends Task.Backgroundable {
         List<String> interfacePath = new ArrayList<>(
             Arrays.asList(state.getInterfaceFilePaths().split(Constants.SPLITOR)));
         Config config = new ConfigImpl(interfacePath, state.getOutputFilePaths(), state.getBaseClass(),
-            state.getMarkdownFiles());
-
+            state.getMarkdownFiles(), true);
         ConfigHolder.setConfig(config);
-
+        /*注册探针服务*/
+        ServerManager.registryServer(Probe.class, new FileProbe());
+        /*注册parser服务*/
+        ServerManager.registryServer(Parser.class, new InterfaceParser());
+        /*注册文档生成服务*/
+        ServerManager.registryServer(DocBuilder.class, new DocBuilderImpl());
+        /*注册jar包生成服务*/
+        ServerManager.registryServer(JarBuilder.class, new JarBuilderImpl());
         updateProgress(0.1f);
         return config;
     }
@@ -119,8 +131,9 @@ public class BuildTask extends Task.Backgroundable {
     private List<PsiClass> searchAllInterface(Config config) {
         this.setTitle("search file");
         List<PsiClass> allInterfaceClass = new ArrayList<>();
+        Probe fileProbe = ServerManager.getServer(Probe.class);
         ApplicationManager.getApplication().runReadAction(() -> {
-            allInterfaceClass.addAll(config.getFileProbe().getAllInterfaceClass(config.getInterfaceFilesPath()));
+            allInterfaceClass.addAll(fileProbe.getAllInterfaceClass(config.getInterfaceFilesPath()));
         });
         updateProgress(0.1f);
         return allInterfaceClass;
@@ -147,16 +160,15 @@ public class BuildTask extends Task.Backgroundable {
     }
 
 
-    private List<FileBO> buildDoc(DocBuilder docBuilder, List<Node> interfaceNode) {
+    private String buildDoc(DocBuilder docBuilder, List<Node> interfaceNode) {
         this.setTitle("building");
-        List<FileBO> docList = docBuilder.buildDoc(interfaceNode);
+        String srcDir = docBuilder.buildDocWithSaving(interfaceNode);
         updateProgress(0.2f);
-        return docList;
+        return srcDir;
     }
 
-    public void buildJar(Probe probe, JarBuilder jarBuilder, String workSpace, List<FileBO> docList) {
+    public void buildJar(JarBuilder jarBuilder, String workSpace, String srcDir) {
         this.setTitle("generating");
-        String srcDir = probe.saveDoc(docList, workSpace);
         jarBuilder.buildJar(srcDir, workSpace);
         updateProgress(0.2f);
     }
