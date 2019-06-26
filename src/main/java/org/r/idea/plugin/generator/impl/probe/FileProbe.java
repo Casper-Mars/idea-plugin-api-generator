@@ -11,6 +11,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 
+import com.intellij.psi.impl.source.PsiJavaFileImpl;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
@@ -108,7 +109,7 @@ public class FileProbe implements Probe {
         PsiElement[] children = directory.getChildren();
 
         for (PsiElement e : children) {
-            if (e instanceof PsiJavaFile) {
+            if (e instanceof PsiJavaFileImpl) {
                 PsiClass psiClass = ((PsiJavaFile) e).getClasses()[0];
                 if (interfaceIndicator.isInterface(psiClass)) {
                     result.add(psiClass);

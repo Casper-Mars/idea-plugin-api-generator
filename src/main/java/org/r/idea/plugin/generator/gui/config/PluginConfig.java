@@ -33,7 +33,7 @@ public class PluginConfig implements SearchableConfigurable {
     @NotNull
     @Override
     public String getId() {
-        return "gui-generator";
+        return "api-generator";
     }
 
     /**
