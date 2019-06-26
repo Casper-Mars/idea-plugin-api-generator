@@ -1,10 +1,14 @@
 package org.r.idea.plugin.generator.gui.task;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.NotificationsManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.popup.Balloon.Position;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.wm.StatusBar;
@@ -31,6 +35,7 @@ import org.r.idea.plugin.generator.gui.beans.SettingState;
 import org.r.idea.plugin.generator.gui.service.StorageService;
 import org.r.idea.plugin.generator.impl.Constants;
 import org.r.idea.plugin.generator.impl.config.ConfigImpl;
+import org.r.idea.plugin.generator.utils.StringUtils;
 
 /**
  * @ClassName BuildTask
@@ -56,8 +61,17 @@ public class BuildTask extends Task.Backgroundable {
         long start = System.currentTimeMillis();
         this.indicator = indicator;
         indicator.setIndeterminate(true);
+        StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
         /*获取配置*/
         Config config = getConfig();
+        if (config == null) {
+            JBPopupFactory.getInstance()
+                .createHtmlTextBalloonBuilder("配置有误，请确保接口目录和输出目录不为空" , MessageType.INFO, null)
+                .setFadeoutTime(7500)
+                .createBalloon()
+                .show(RelativePoint.getCenterOf(statusBar.getComponent()), Position.atRight);
+            return;
+        }
         /*搜索接口文件*/
         List<PsiClass> psiClasses = searchAllInterface(config);
         /*转化接口*/
@@ -69,7 +83,6 @@ public class BuildTask extends Task.Backgroundable {
         indicator.setFraction(1.0);
         indicator.setText("finish");
 
-        StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
         long end = System.currentTimeMillis();
         JBPopupFactory.getInstance()
             .createHtmlTextBalloonBuilder("finish:" + (end - start) + " ms", MessageType.INFO, null)
@@ -88,6 +101,9 @@ public class BuildTask extends Task.Backgroundable {
         SettingState state = storageService.getState();
         if (state == null || project == null) {
             throw new RuntimeException("程序异常");
+        }
+        if (StringUtils.isEmpty(state.getInterfaceFilePaths()) || StringUtils.isEmpty(state.getOutputFilePaths())) {
+            return null;
         }
         List<String> interfacePath = new ArrayList<>(
             Arrays.asList(state.getInterfaceFilePaths().split(Constants.SPLITOR)));

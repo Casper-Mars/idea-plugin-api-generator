@@ -16,6 +16,7 @@ import org.r.idea.plugin.generator.impl.builder.DocBuilderImpl;
 import org.r.idea.plugin.generator.impl.builder.JarBuilderImpl;
 import org.r.idea.plugin.generator.impl.parser.InterfaceParser;
 import org.r.idea.plugin.generator.impl.probe.FileProbe;
+import org.r.idea.plugin.generator.utils.CollectionUtils;
 import org.r.idea.plugin.generator.utils.StringUtils;
 
 /**
@@ -67,10 +68,10 @@ public class ConfigImpl implements Config {
         this.docBuilder = docBuilder;
         this.jarBuilder = jarBuilder;
         this.isDebug = isDebug;
-        this.interfaceFilePaths = interfaceFilePaths.stream().map(this::formatPath).collect(Collectors.toList());
-        this.workSpace = formatPath(workSpace);
         this.markdownPath = formatPath(markdownPath);
         setBaseClass(baseClass);
+        this.interfaceFilePaths = interfaceFilePaths.stream().map(this::formatPath).collect(Collectors.toList());
+        this.workSpace = formatPath(workSpace);
     }
 
 

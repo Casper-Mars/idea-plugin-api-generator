@@ -2,6 +2,16 @@
 ## 说明
    生成器基于spring boot、swagger2和肖玉明的swagger-ui。设置好参数后一键生成文档，并打成可运行jar包，只需在命令行中执行java -jar
    container.jar，即可在浏览器中访问:localhost:8080/doc.html
+## 使用
+  1. 配置参数：
+        * 打开File->Setting->Order Settings->api-generator
+        * 选择接口文件所在的目录，推荐选择直接的父目录
+        * 选择输出的位置目录。注意输出目录必须有写权限
+        * 如果有额外的markdown类型的接口文档要引用，则选择该目录
+        * 基本类型枚举作用详情请参阅：
+  2. 生成文档：
+        * 点击菜单栏的Tools，再点击Generate api doc选择即可生成文档到配置的输出目录
+        * 或者直接按快捷键：shift+ctrl+alt+G
 ## 技术难点记录
    * idea提供的文档不足，好多api不会用，又查不到
    * 读取jar包中的文件

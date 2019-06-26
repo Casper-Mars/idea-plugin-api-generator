@@ -31,8 +31,7 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
-        更改底层核心包的逻辑，直接依赖idea的psi系统。
-        利用动态编译实现编译生成的源文件并通过操作jar包把编译的class文件附加到已有的jar包中
+        简化配置，增强功能，更改接口的转化方式
       """
 }
 
