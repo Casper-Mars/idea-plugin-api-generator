@@ -37,13 +37,18 @@ public class InterfaceParser implements Parser {
         /*处理方法*/
         List<Node> methods = new ArrayList<>();
         MethodParser methodParser = new MethodParser();
-        for (PsiMethod method : target.getMethods()) {
-            MethodNode methodNode = methodParser.parse(method);
-            if (methodNode == null) {
-                continue;
+        try {
+            for (PsiMethod method : target.getMethods()) {
+                MethodNode methodNode = methodParser.parse(method);
+                if (methodNode == null) {
+                    continue;
+                }
+                methodNode.setUrl(interfaceNode.getBaseUrl() + methodNode.getUrl());
+                methods.add(methodNode);
             }
-            methodNode.setUrl(interfaceNode.getBaseUrl() + methodNode.getUrl());
-            methods.add(methodNode);
+        } catch (ClassNotFoundException e) {
+            e.setMsg(target.getQualifiedName() + "-" + e.getMsg());
+            throw e;
         }
         interfaceNode.setChildren(methods);
         return interfaceNode;

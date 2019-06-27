@@ -1,21 +1,18 @@
 package org.r.idea.plugin.generator.gui.task;
 
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.NotificationsManager;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.popup.Balloon.Position;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
+import com.intellij.openapi.wm.impl.WindowManagerImpl;
 import com.intellij.psi.PsiClass;
 import com.intellij.ui.awt.RelativePoint;
-import com.intellij.util.io.Compressor.Jar;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +21,6 @@ import org.jetbrains.annotations.Nls.Capitalization;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.r.idea.plugin.generator.core.ConfigHolder;
-import org.r.idea.plugin.generator.core.beans.FileBO;
 import org.r.idea.plugin.generator.core.builder.DocBuilder;
 import org.r.idea.plugin.generator.core.builder.JarBuilder;
 import org.r.idea.plugin.generator.core.config.Config;
@@ -41,6 +37,7 @@ import org.r.idea.plugin.generator.impl.builder.JarBuilderImpl;
 import org.r.idea.plugin.generator.impl.config.ConfigImpl;
 import org.r.idea.plugin.generator.impl.parser.InterfaceParser;
 import org.r.idea.plugin.generator.impl.probe.FileProbe;
+import org.r.idea.plugin.generator.utils.CollectionUtils;
 import org.r.idea.plugin.generator.utils.StringUtils;
 
 /**
@@ -50,16 +47,15 @@ import org.r.idea.plugin.generator.utils.StringUtils;
  **/
 public class BuildTask extends Task.Backgroundable {
 
-    private String title;
     private Project project;
     private ProgressIndicator indicator;
 
+    private static final Logger LOG = Logger.getInstance(BuildTask.class);
 
     public BuildTask(@Nullable Project project,
         @Nls(capitalization = Capitalization.Title) @NotNull String title) {
         super(project, title);
         this.project = project;
-        this.title = title;
     }
 
     @Override
@@ -67,6 +63,7 @@ public class BuildTask extends Task.Backgroundable {
         long start = System.currentTimeMillis();
         this.indicator = indicator;
         indicator.setIndeterminate(true);
+        indicator.setFraction(0.0f);
         StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
         /*获取配置*/
         Config config = getConfig();
@@ -80,8 +77,24 @@ public class BuildTask extends Task.Backgroundable {
         }
         /*搜索接口文件*/
         List<PsiClass> psiClasses = searchAllInterface(config);
+        if (CollectionUtils.isEmpty(psiClasses)) {
+            JBPopupFactory.getInstance()
+                .createHtmlTextBalloonBuilder("找不到接口文件", MessageType.INFO, null)
+                .setFadeoutTime(7500)
+                .createBalloon()
+                .show(RelativePoint.getCenterOf(statusBar.getComponent()), Position.atRight);
+            return;
+        }
         /*转化接口*/
         List<Node> nodes = parseFile(Parser.getInstance(), psiClasses);
+        if (CollectionUtils.isEmpty(nodes)) {
+            JBPopupFactory.getInstance()
+                .createHtmlTextBalloonBuilder("解析有误", MessageType.INFO, null)
+                .setFadeoutTime(7500)
+                .createBalloon()
+                .show(RelativePoint.getCenterOf(statusBar.getComponent()), Position.atRight);
+            return;
+        }
         /*生成文档源文件*/
         String srcDir = buildDoc(DocBuilder.getInstance(), nodes);
         /*生成jar包*/
@@ -102,11 +115,13 @@ public class BuildTask extends Task.Backgroundable {
         this.setTitle("init");
         StorageService storageService = StorageService.getInstance();
         if (storageService == null) {
-            throw new RuntimeException("请先打开项目");
+            LOG.error("请先打开项目");
+            return null;
         }
         SettingState state = storageService.getState();
         if (state == null || project == null) {
-            throw new RuntimeException("程序异常");
+            LOG.error("程序异常");
+            return null;
         }
         if (StringUtils.isEmpty(state.getInterfaceFilePaths()) || StringUtils.isEmpty(state.getOutputFilePaths())) {
             return null;
@@ -143,16 +158,15 @@ public class BuildTask extends Task.Backgroundable {
         this.setTitle("parsing file");
         List<Node> interfaceNode = new ArrayList<>();
         ApplicationManager.getApplication().runReadAction(() -> {
-            float total = allInterfaceClass.size();
-            float count = 0;
+            float total = (1.0f / allInterfaceClass.size()) * 0.4f;
+
             for (PsiClass target : allInterfaceClass) {
                 try {
                     Node parse = parser.parse(target);
                     interfaceNode.add(parse);
-                    count++;
-                    updateProgress((count / total) * 0.4f);
+                    updateProgress(total);
                 } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
+                    LOG.error(e.getMsg());
                 }
             }
         });

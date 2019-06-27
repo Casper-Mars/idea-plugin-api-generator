@@ -35,7 +35,13 @@ public class MethodParser {
         /*设置方法名*/
         methodNode.setName(target.getName());
         /*处理参数和返回值*/
-        processParameterAndRespone(methodNode, target);
+        try {
+            processParameterAndRespone(methodNode, target);
+
+        } catch (ClassNotFoundException e) {
+            e.setMsg(target.getName() + "-" + e.getMsg());
+            throw e;
+        }
         return methodNode;
     }
 
