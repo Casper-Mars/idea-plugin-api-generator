@@ -2,20 +2,18 @@ plugins {
     id 'java'
     id 'org.jetbrains.intellij' version '0.4.9'
 }
-def ideaVersion = '2019.1'
-def pluginGroup = 'org.r.idea.plugin'
-def pluginVersion = '1.4' + "-" + ideaVersion
 
+def mavenRep=localMaven
 
-group pluginGroup
-version pluginVersion
+group "org.r.idea.plugin"
+version "1.4"+"-"+ideaVersion
 
 sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
     mavenLocal()
-    maven { url "file://D:/maven/repository" }
+    maven { url mavenRep }
 }
 
 dependencies {
@@ -37,3 +35,6 @@ patchPluginXml {
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
+
+
+

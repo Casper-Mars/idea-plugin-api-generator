@@ -2,6 +2,7 @@
 build
 out
 .gradle
+gradle.properties
 # Compiled class file
 *.class
 
