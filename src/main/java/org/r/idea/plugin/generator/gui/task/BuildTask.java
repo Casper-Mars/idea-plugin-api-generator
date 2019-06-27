@@ -10,7 +10,6 @@ import com.intellij.openapi.ui.popup.Balloon.Position;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
-import com.intellij.openapi.wm.impl.WindowManagerImpl;
 import com.intellij.psi.PsiClass;
 import com.intellij.ui.awt.RelativePoint;
 import java.util.ArrayList;
@@ -64,35 +63,22 @@ public class BuildTask extends Task.Backgroundable {
         this.indicator = indicator;
         indicator.setIndeterminate(true);
         indicator.setFraction(0.0f);
-        StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
         /*获取配置*/
         Config config = getConfig();
         if (config == null) {
-            JBPopupFactory.getInstance()
-                .createHtmlTextBalloonBuilder("配置有误，请确保接口目录和输出目录不为空", MessageType.INFO, null)
-                .setFadeoutTime(7500)
-                .createBalloon()
-                .show(RelativePoint.getCenterOf(statusBar.getComponent()), Position.atRight);
+            showInfo("配置有误，请确保接口目录和输出目录不为空");
             return;
         }
         /*搜索接口文件*/
         List<PsiClass> psiClasses = searchAllInterface(config);
         if (CollectionUtils.isEmpty(psiClasses)) {
-            JBPopupFactory.getInstance()
-                .createHtmlTextBalloonBuilder("找不到接口文件", MessageType.INFO, null)
-                .setFadeoutTime(7500)
-                .createBalloon()
-                .show(RelativePoint.getCenterOf(statusBar.getComponent()), Position.atRight);
+            showInfo("找不到接口文件");
             return;
         }
         /*转化接口*/
         List<Node> nodes = parseFile(Parser.getInstance(), psiClasses);
         if (CollectionUtils.isEmpty(nodes)) {
-            JBPopupFactory.getInstance()
-                .createHtmlTextBalloonBuilder("解析有误", MessageType.INFO, null)
-                .setFadeoutTime(7500)
-                .createBalloon()
-                .show(RelativePoint.getCenterOf(statusBar.getComponent()), Position.atRight);
+            showInfo("解析有误");
             return;
         }
         /*生成文档源文件*/
@@ -103,12 +89,7 @@ public class BuildTask extends Task.Backgroundable {
         indicator.setText("finish");
 
         long end = System.currentTimeMillis();
-        JBPopupFactory.getInstance()
-            .createHtmlTextBalloonBuilder("finish:" + (end - start) + " ms", MessageType.INFO, null)
-            .setFadeoutTime(7500)
-            .createBalloon()
-            .show(RelativePoint.getCenterOf(statusBar.getComponent()), Position.atRight);
-
+        showInfo("finish:" + (end - start) + " ms");
     }
 
     private Config getConfig() {
@@ -116,11 +97,13 @@ public class BuildTask extends Task.Backgroundable {
         StorageService storageService = StorageService.getInstance();
         if (storageService == null) {
             LOG.error("请先打开项目");
+            showInfo("请先打开项目");
             return null;
         }
         SettingState state = storageService.getState();
         if (state == null || project == null) {
             LOG.error("程序异常");
+            showInfo("程序异常");
             return null;
         }
         if (StringUtils.isEmpty(state.getInterfaceFilePaths()) || StringUtils.isEmpty(state.getOutputFilePaths())) {
@@ -146,9 +129,14 @@ public class BuildTask extends Task.Backgroundable {
     private List<PsiClass> searchAllInterface(Config config) {
         this.setTitle("search file");
         List<PsiClass> allInterfaceClass = new ArrayList<>();
-        Probe fileProbe = ServerManager.getServer(Probe.class);
+        Probe fileProbe = Probe.getInstance();
         ApplicationManager.getApplication().runReadAction(() -> {
-            allInterfaceClass.addAll(fileProbe.getAllInterfaceClass(config.getInterfaceFilesPath()));
+            try {
+                allInterfaceClass.addAll(fileProbe.getAllInterfaceClass(config.getInterfaceFilesPath()));
+            } catch (ClassNotFoundException e) {
+                LOG.error(e.getMsg());
+                showInfo(e.getMsg());
+            }
         });
         updateProgress(0.1f);
         return allInterfaceClass;
@@ -159,7 +147,6 @@ public class BuildTask extends Task.Backgroundable {
         List<Node> interfaceNode = new ArrayList<>();
         ApplicationManager.getApplication().runReadAction(() -> {
             float total = (1.0f / allInterfaceClass.size()) * 0.4f;
-
             for (PsiClass target : allInterfaceClass) {
                 try {
                     Node parse = parser.parse(target);
@@ -167,6 +154,7 @@ public class BuildTask extends Task.Backgroundable {
                     updateProgress(total);
                 } catch (ClassNotFoundException e) {
                     LOG.error(e.getMsg());
+                    showInfo(e.getMsg());
                 }
             }
         });
@@ -191,5 +179,13 @@ public class BuildTask extends Task.Backgroundable {
         indicator.setFraction(indicator.getFraction() + f);
     }
 
+    private void showInfo(String info) {
+        StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
+        JBPopupFactory.getInstance()
+            .createHtmlTextBalloonBuilder(info, MessageType.INFO, null)
+            .setFadeoutTime(7500)
+            .createBalloon()
+            .show(RelativePoint.getCenterOf(statusBar.getComponent()), Position.atRight);
+    }
 
 }

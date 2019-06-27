@@ -3,10 +3,10 @@ plugins {
     id 'org.jetbrains.intellij' version '0.4.9'
 }
 
-def mavenRep=localMaven
+def mavenRep = localMaven
 
 group "org.r.idea.plugin"
-version "1.4"+"-"+ideaVersion
+version "1.6" + "-" + ideaVersion
 
 sourceCompatibility = 1.8
 
@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    runtime group: 'com.sun',name: 'tools',version: '1.0'
+    runtime group: 'com.sun', name: 'tools', version: '1.0'
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
@@ -28,7 +28,7 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
-        简化配置，增强功能，更改接口的转化方式
+        修复更改文件后没有读取到更改的内容的bug
       """
 }
 

@@ -70,11 +70,7 @@ public class PojoParser {
             paramNode.setTypeQualifiedName(qualifiedName);
         } else {
             Project defaultProject = ProjectManager.getInstance().getOpenProjects()[0];
-            PsiClass target = JavaPsiFacade.getInstance(defaultProject).findClass(qualifiedName,
-                GlobalSearchScope.allScope(defaultProject));
-            if (target == null) {
-                throw new ClassNotFoundException("不存在类：" + qualifiedName);
-            }
+            PsiClass target = Utils.getClass(qualifiedName, defaultProject);
             paramNode.setJson(true);
             paramNode.setEntity(true);
             paramNode.setTypeQualifiedName(target.getQualifiedName());

@@ -23,9 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.r.idea.plugin.generator.core.beans.FileBO;
+import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.indicators.InterfaceIndicator;
 import org.r.idea.plugin.generator.core.probe.Probe;
 import org.r.idea.plugin.generator.impl.Constants;
+import org.r.idea.plugin.generator.impl.Utils;
 import org.r.idea.plugin.generator.impl.indicators.InterfaceIndicatorImpl;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
 import org.r.idea.plugin.generator.utils.StringUtils;
@@ -46,7 +48,7 @@ public class FileProbe implements Probe {
      * @param interfaceFilePath 接口文件目录
      */
     @Override
-    public List<PsiClass> getAllInterfaceClass(List<String> interfaceFilePath) {
+    public List<PsiClass> getAllInterfaceClass(List<String> interfaceFilePath) throws ClassNotFoundException {
         CoreLocalFileSystem coreLocalFileSystem = new CoreLocalFileSystem();
         Project project = ProjectManager.getInstance().getOpenProjects()[0];
         List<PsiClass> result = new ArrayList<>();
@@ -69,7 +71,9 @@ public class FileProbe implements Probe {
      */
     @Override
     public List<File> searchFile(String searchPath, FileFilter fileFilter) {
-        if (StringUtils.isEmpty(searchPath)) return null;
+        if (StringUtils.isEmpty(searchPath)) {
+            return null;
+        }
         File curFile = new File(searchPath);
         if (!curFile.exists()) {
             return null;
@@ -101,18 +105,22 @@ public class FileProbe implements Probe {
      *
      * @param directory 目标目录
      */
-    private List<PsiClass> getPsiClassRecur(PsiDirectory directory) {
+    private List<PsiClass> getPsiClassRecur(PsiDirectory directory) throws ClassNotFoundException {
         if (directory == null) {
             return null;
         }
         List<PsiClass> result = new ArrayList<>();
         PsiElement[] children = directory.getChildren();
+        Project defaultProject = ProjectManager.getInstance().getOpenProjects()[0];
 
         for (PsiElement e : children) {
             if (e instanceof PsiJavaFileImpl) {
                 PsiClass psiClass = ((PsiJavaFile) e).getClasses()[0];
-                if (interfaceIndicator.isInterface(psiClass)) {
-                    result.add(psiClass);
+                if (psiClass != null) {
+                    PsiClass target = Utils.getClass(psiClass.getQualifiedName(), defaultProject);
+                    if (interfaceIndicator.isInterface(target)) {
+                        result.add(target);
+                    }
                 }
             } else if (e instanceof PsiDirectory) {
                 List<PsiClass> subClass = getPsiClassRecur((PsiDirectory) e);
@@ -135,7 +143,7 @@ public class FileProbe implements Probe {
             }
         }
         try (BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
+            new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
             writer.write(content);
             writer.flush();
         } catch (IOException e) {

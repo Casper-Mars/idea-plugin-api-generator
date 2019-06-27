@@ -6,6 +6,7 @@ import java.io.FileFilter;
 import java.util.List;
 import org.r.idea.plugin.generator.core.beans.FileBO;
 import org.r.idea.plugin.generator.core.config.ServerManager;
+import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 
 /**
  * @ClassName Probe
@@ -19,7 +20,7 @@ public interface Probe {
         return ServerManager.getServer(Probe.class);
     }
 
-    List<PsiClass> getAllInterfaceClass(List<String> interfaceFilePath);
+    List<PsiClass> getAllInterfaceClass(List<String> interfaceFilePath) throws ClassNotFoundException;
 
     void writerFile(String filename, String content);
 

@@ -1,9 +1,15 @@
 package org.r.idea.plugin.generator.impl;
 
 
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiAnnotation;
+import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.javadoc.PsiDocToken;
+import com.intellij.psi.search.GlobalSearchScope;
+import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 
 /**
  * @ClassName Utils
@@ -14,8 +20,8 @@ public class Utils {
 
 
     public static String[] baseClass = {"String", "Long", "int", "long", "char", "Integer", "double", "Double",
-        "BigDecimal","LocalDateTime","BigDecimal","boolean","Boolean","BindingResult"
-};
+        "BigDecimal", "LocalDateTime", "BigDecimal", "boolean", "Boolean", "BindingResult"
+    };
 
 
     /**
@@ -79,5 +85,15 @@ public class Utils {
         }
         return null;
     }
+
+    public static PsiClass getClass(String qualifiedName, Project project) throws ClassNotFoundException {
+        PsiClass target = JavaPsiFacade.getInstance(project)
+            .findClass(qualifiedName, GlobalSearchScope.allScope(project));
+        if (target == null) {
+            throw new ClassNotFoundException("不存在类：" + qualifiedName);
+        }
+        return target;
+    }
+
 
 }

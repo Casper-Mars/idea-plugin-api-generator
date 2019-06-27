@@ -16,7 +16,7 @@
     </em> 选择接口文件所在的目录，推荐选择直接的父目录
     <em> 选择输出的位置目录。注意输出目录必须有写权限
     </em> 如果有额外的markdown类型的接口文档要引用，则选择该目录
-    * 基本类型枚举作用详情请参阅：</li><li>生成文档：
+    * 基本类型枚举作用详情请参阅：<a href="https://github.com/Casper-Mars/idea-plugin-api-generator">github</a></li><li>生成文档：
     <em> 点击菜单栏的Tools，再点击Generate api doc选择即可生成文档到配置的输出目录
     </em> 或者直接按快捷键：shift+ctrl+alt+G</li></ol>
 <h2>接口解析规则</h2>
