@@ -114,7 +114,7 @@ public class BuildTask extends Task.Backgroundable {
         List<String> interfacePath = new ArrayList<>(
             Arrays.asList(state.getInterfaceFilePaths().split(Constants.SPLITOR)));
         Config config = new ConfigImpl(interfacePath, state.getOutputFilePaths(), state.getBaseClass(),
-            state.getMarkdownFiles(), true);
+            state.getMarkdownFiles());
         ConfigHolder.setConfig(config);
         /*注册探针服务*/
         ServerManager.registryServer(Probe.class, new FileProbe());
