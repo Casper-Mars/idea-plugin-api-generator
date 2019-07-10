@@ -6,7 +6,7 @@ plugins {
 def mavenRep = localMaven
 
 group "org.r.idea.plugin"
-version "1.6" + "-" + ideaVersion
+version "1.6.1" + "-" + ideaVersion
 
 sourceCompatibility = 1.8
 
