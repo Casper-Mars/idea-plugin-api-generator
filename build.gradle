@@ -28,7 +28,7 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
-        修复更改文件后没有读取到更改的内容的bug
+        1.6.1:修复因模板缺少对MultipartFile的导入导致的编译失败异常
       """
 }
 
