@@ -6,7 +6,7 @@ plugins {
 def mavenRep = localMaven
 
 group "org.r.idea.plugin"
-version "1.6.1" + "-" + ideaVersion
+version "1.6.2" + "-" + ideaVersion
 
 sourceCompatibility = 1.8
 
@@ -19,6 +19,7 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     runtime group: 'com.sun', name: 'tools', version: '1.0'
+    compile group: 'com.jcraft', name: 'jsch', version: '0.1.54'
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
@@ -28,7 +29,7 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
-        1.6.1:修复因模板缺少对MultipartFile的导入导致的编译失败异常
+        1.6.2:修复对Date基本类型的解析出错，修复无法解析出父类的属性的bug
       """
 }
 

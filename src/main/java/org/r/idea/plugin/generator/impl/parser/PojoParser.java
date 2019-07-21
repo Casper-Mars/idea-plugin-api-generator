@@ -6,8 +6,11 @@ import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.search.GlobalSearchScope;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.indicators.GenericityIndicator;
 import org.r.idea.plugin.generator.core.indicators.InterfaceIndicator;
@@ -75,7 +78,7 @@ public class PojoParser {
             paramNode.setEntity(true);
             paramNode.setTypeQualifiedName(target.getQualifiedName());
             List<Node> children = new ArrayList<>();
-            for (PsiField field : target.getFields()) {
+            for (PsiField field : getField(target)) {
                 /*如果实体类出现自引用则不解析*/
                 if (field.getType().getCanonicalText().equals(target.getQualifiedName())) {
                     continue;
@@ -92,6 +95,19 @@ public class PojoParser {
             paramNode.setChildren(children);
         }
         return paramNode;
+    }
+
+
+    /**
+     * 获取指定的类的所有属性
+     *
+     * @param target 对象
+     * @return
+     */
+    private List<PsiField> getField(PsiClass target) {
+
+        PsiField[] fields = target.getAllFields();
+        return new ArrayList<>(Arrays.asList(fields));
     }
 
 

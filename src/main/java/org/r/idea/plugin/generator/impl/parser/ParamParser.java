@@ -7,10 +7,12 @@ import com.intellij.psi.impl.source.javadoc.PsiDocParamRef;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
 import com.intellij.psi.javadoc.PsiDocToken;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.nodes.Node;
 import org.r.idea.plugin.generator.impl.Utils;
@@ -35,7 +37,7 @@ public class ParamParser {
             ParamNode paramNode = pojoParser.parse(parameter.getType().getCanonicalText());
             paramNode.setName(parameter.getName());
             paramNode.setJson(
-                Utils.isContainAnnotation("org.springframework.web.bind.annotation.RequestBody", parameter.getAnnotations()));
+                    Utils.isContainAnnotation("org.springframework.web.bind.annotation.RequestBody", parameter.getAnnotations()));
             if (priority) {
                 String desc = param.get(parameter.getName());
                 if (desc != null) {
@@ -51,6 +53,12 @@ public class ParamParser {
         return paramNodeList;
     }
 
+    /**
+     * 获取方法的参数
+     *
+     * @param method 方法
+     * @return
+     */
     private Map<String, String> getParam(PsiMethod method) {
         PsiDocComment docComment = method.getDocComment();
 

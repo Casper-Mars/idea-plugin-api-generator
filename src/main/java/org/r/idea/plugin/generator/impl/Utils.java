@@ -19,9 +19,7 @@ import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 public class Utils {
 
 
-    public static String[] baseClass = {"String", "Long", "int", "long", "char", "Integer", "double", "Double",
-        "BigDecimal", "LocalDateTime", "BigDecimal", "boolean", "Boolean", "BindingResult"
-    };
+    public static String[] baseClass = {};
 
 
     /**
@@ -62,7 +60,7 @@ public class Utils {
      * 判断指定的注解集合中是否包括指定的注解
      *
      * @param qualifiedName 指定的注解全名称
-     * @param src 指定的注解集合
+     * @param src           指定的注解集合
      */
     public static boolean isContainAnnotation(String qualifiedName, PsiAnnotation[] src) {
         return findAnnotationByName(qualifiedName, src) != null;
@@ -72,7 +70,7 @@ public class Utils {
      * 在指定的注解集合中找出指定的注解
      *
      * @param qualifiedName 指定的注解全名称
-     * @param src 指定的注解集合
+     * @param src           指定的注解集合
      */
     public static PsiAnnotation findAnnotationByName(String qualifiedName, PsiAnnotation[] src) {
         if (null == src || qualifiedName == null || src.length == 0) {
@@ -88,7 +86,7 @@ public class Utils {
 
     public static PsiClass getClass(String qualifiedName, Project project) throws ClassNotFoundException {
         PsiClass target = JavaPsiFacade.getInstance(project)
-            .findClass(qualifiedName, GlobalSearchScope.allScope(project));
+                .findClass(qualifiedName, GlobalSearchScope.allScope(project));
         if (target == null) {
             throw new ClassNotFoundException("不存在类：" + qualifiedName);
         }

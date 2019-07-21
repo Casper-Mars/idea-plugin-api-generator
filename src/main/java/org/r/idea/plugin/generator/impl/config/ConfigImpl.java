@@ -35,18 +35,22 @@ public class ConfigImpl implements Config {
 
     private boolean isDebug;
 
+    private String[] baseClass = {"String", "Long", "int", "long", "char", "Integer", "double", "Double",
+            "BigDecimal", "LocalDateTime", "BigDecimal", "boolean", "Boolean", "BindingResult", "Date"
+    };
+
     public ConfigImpl(List<String> interfaceFilePaths, String workSpace, String baseClass, String markdownPath) {
-        init(interfaceFilePaths,workSpace, baseClass, markdownPath, false);
+        init(interfaceFilePaths, workSpace, baseClass, markdownPath, false);
     }
 
     public ConfigImpl(List<String> interfaceFilePaths, String workSpace, String baseClass, String markdownPath,
-        boolean isDebug) {
-        init(interfaceFilePaths,workSpace, baseClass, markdownPath, isDebug);
+                      boolean isDebug) {
+        init(interfaceFilePaths, workSpace, baseClass, markdownPath, isDebug);
     }
 
 
     private void init(List<String> interfaceFilePaths, String workSpace, String baseClass,
-        String markdownPath, boolean isDebug) {
+                      String markdownPath, boolean isDebug) {
         this.isDebug = isDebug;
         this.markdownPath = formatPath(markdownPath);
         setBaseClass(baseClass);
@@ -57,7 +61,9 @@ public class ConfigImpl implements Config {
 
     public void setBaseClass(String baseClass) {
         if (StringUtils.isNotEmpty(baseClass)) {
-            Utils.baseClass = merge(baseClass.split(Constants.SPLITOR), Utils.baseClass);
+            Utils.baseClass = merge(baseClass.split(Constants.SPLITOR), this.baseClass);
+        } else {
+            Utils.baseClass = this.baseClass;
         }
     }
 
