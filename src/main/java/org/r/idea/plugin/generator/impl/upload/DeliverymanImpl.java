@@ -25,13 +25,13 @@ public class DeliverymanImpl implements Deliveryman {
     private String remoteFilename;
 
 
-    public DeliverymanImpl(String localFilename, String remoteIp, String remoteUsername, String password, Integer port, String remoteFilename) {
+    public DeliverymanImpl(String localFilename, String remoteIp, String remoteUsername, String password, Integer port, String remoteFilePath) {
         this.localFilename = localFilename;
         this.remoteIp = remoteIp;
         this.remoteUsername = remoteUsername;
         this.password = password;
         this.port = port;
-        this.remoteFilename = remoteFilename;
+        this.remoteFilePath = remoteFilePath;
     }
 
     /**
@@ -93,22 +93,32 @@ public class DeliverymanImpl implements Deliveryman {
             if (session == null) {
                 // TODO: 19-7-21 抛出异常
             }
+            session.setPassword(password);
+            session.setConfig("StrictHostKeyChecking", "no");
+            session.connect(3000);
+
+            /*上传jar包*/
             uploadJar(session);
+            /*检查有没有相同的jar包在跑，有则kill*/
+            String checkCmd = "kill -9 `ps -ef | grep api-doc.jar | grep -v grep | awk '{print $2}'`";
+            execCmd(session, checkCmd);
+            String runCmd = "mv api-doc-t.jar api-doc.jar && nohup java -jar -Dserver.port=18180 api-doc.jar > logfile.log 2>&1";
+            execCmd(session, runCmd);
 
         } catch (JSchException | FileNotFoundException | SftpException e) {
             e.printStackTrace();
         }
 
-
-        /*上传jar包并重名名*/
-
-        /*检查有没有相同的jar包在跑，有则kill*/
-
-        /*重命名覆盖原来的jar包并运行*/
-
-
     }
 
+    /**
+     * 上传jar包
+     *
+     * @param session
+     * @throws JSchException
+     * @throws SftpException
+     * @throws FileNotFoundException
+     */
     private void uploadJar(Session session) throws JSchException, SftpException, FileNotFoundException {
 
         /*获取信道*/
@@ -116,7 +126,7 @@ public class DeliverymanImpl implements Deliveryman {
         /*获取文件输入流*/
         try (InputStream in = getLocalFileInputStream(localFilename)) {
             sftp.connect();
-            sftp.put(in, remoteFilename);
+            sftp.put(in, remoteFilePath+"api-doc-t.jar");
         } catch (IOException e) {
             e.printStackTrace();
             throw new FileNotFoundException();
@@ -133,6 +143,14 @@ public class DeliverymanImpl implements Deliveryman {
     private InputStream getLocalFileInputStream(String filenameWithPath) throws FileNotFoundException {
         File file = new File(filenameWithPath);
         return new FileInputStream(file);
+    }
+
+    private void execCmd(Session session, String cmd) throws JSchException {
+        /*获取ssh信道*/
+        ChannelExec exec = (ChannelExec) session.openChannel("exec");
+        exec.setCommand(cmd);
+        exec.connect();
+        int exitStatus = exec.getExitStatus();
     }
 
 
