@@ -95,6 +95,18 @@ public class PluginConfig implements SearchableConfigurable {
             if (!settingPanel.getMdText().equals(state.getMarkdownFiles())) {
                 return true;
             }
+            if (!settingPanel.getUsernameText().equals(state.getUsername())) {
+                return true;
+            }
+            if (!settingPanel.getPassword().equals(state.getPassword())) {
+                return true;
+            }
+            if (!settingPanel.getHostText().equals(state.getHost())) {
+                return true;
+            }
+            if (!settingPanel.getRemotePathText().equals(state.getRemotePath())) {
+                return true;
+            }
             return false;
         }
         return true;
@@ -113,6 +125,10 @@ public class PluginConfig implements SearchableConfigurable {
         state.setOutputFilePaths(settingPanel.getOutputFileText());
         state.setBaseClass(settingPanel.getBaseClassText());
         state.setMarkdownFiles(settingPanel.getMdText());
+        state.setUsername(settingPanel.getUsernameText());
+        state.setPassword(settingPanel.getPassword());
+        state.setHost(settingPanel.getHostText());
+        state.setRemotePath(settingPanel.getRemotePathText());
         storageService.loadState(state);
     }
 

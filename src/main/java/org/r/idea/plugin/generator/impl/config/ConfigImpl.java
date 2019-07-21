@@ -39,6 +39,27 @@ public class ConfigImpl implements Config {
             "BigDecimal", "LocalDateTime", "BigDecimal", "boolean", "Boolean", "BindingResult", "Date"
     };
 
+    /**
+     * 服务器用户名
+     */
+    private String username;
+
+    /**
+     * 服务器密码
+     */
+    private String password;
+
+    /**
+     * 服务器地址
+     */
+    private String host;
+
+    /**
+     * 服务器远端路径
+     */
+    private String remotePath;
+
+
     public ConfigImpl(List<String> interfaceFilePaths, String workSpace, String baseClass, String markdownPath) {
         init(interfaceFilePaths, workSpace, baseClass, markdownPath, false);
     }
@@ -94,6 +115,42 @@ public class ConfigImpl implements Config {
     @Override
     public boolean isDebug() {
         return this.isDebug;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getHost() {
+        return host;
+    }
+
+    @Override
+    public String getRemotePath() {
+        return remotePath;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public void setRemotePath(String remotePath) {
+        this.remotePath = remotePath;
     }
 
     private String formatPath(String path) {

@@ -12,9 +12,11 @@ import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.ui.awt.RelativePoint;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nls.Capitalization;
 import org.jetbrains.annotations.NotNull;
@@ -25,9 +27,11 @@ import org.r.idea.plugin.generator.core.builder.JarBuilder;
 import org.r.idea.plugin.generator.core.config.Config;
 import org.r.idea.plugin.generator.core.config.ServerManager;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
+import org.r.idea.plugin.generator.core.exceptions.UplodaException;
 import org.r.idea.plugin.generator.core.nodes.Node;
 import org.r.idea.plugin.generator.core.parser.Parser;
 import org.r.idea.plugin.generator.core.probe.Probe;
+import org.r.idea.plugin.generator.core.upload.Deliveryman;
 import org.r.idea.plugin.generator.gui.beans.SettingState;
 import org.r.idea.plugin.generator.gui.service.StorageService;
 import org.r.idea.plugin.generator.impl.Constants;
@@ -36,6 +40,7 @@ import org.r.idea.plugin.generator.impl.builder.JarBuilderImpl;
 import org.r.idea.plugin.generator.impl.config.ConfigImpl;
 import org.r.idea.plugin.generator.impl.parser.InterfaceParser;
 import org.r.idea.plugin.generator.impl.probe.FileProbe;
+import org.r.idea.plugin.generator.impl.upload.DeliverymanImpl;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
 import org.r.idea.plugin.generator.utils.StringUtils;
 
@@ -52,7 +57,7 @@ public class BuildTask extends Task.Backgroundable {
     private static final Logger LOG = Logger.getInstance(BuildTask.class);
 
     public BuildTask(@Nullable Project project,
-        @Nls(capitalization = Capitalization.Title) @NotNull String title) {
+                     @Nls(capitalization = Capitalization.Title) @NotNull String title) {
         super(project, title);
         this.project = project;
     }
@@ -85,6 +90,9 @@ public class BuildTask extends Task.Backgroundable {
         String srcDir = buildDoc(DocBuilder.getInstance(), nodes);
         /*生成jar包*/
         buildJar(JarBuilder.getInstance(), config.getWorkSpace(), srcDir);
+        /*上传到服务器*/
+        uploadJar(config.getUsername(), config.getPassword(), config.getHost(), config.getRemotePath(), config.getWorkSpace());
+
         indicator.setFraction(1.0);
         indicator.setText("finish");
 
@@ -110,9 +118,17 @@ public class BuildTask extends Task.Backgroundable {
             return null;
         }
         List<String> interfacePath = new ArrayList<>(
-            Arrays.asList(state.getInterfaceFilePaths().split(Constants.SPLITOR)));
+                Arrays.asList(state.getInterfaceFilePaths().split(Constants.SPLITOR)));
         Config config = new ConfigImpl(interfacePath, state.getOutputFilePaths(), state.getBaseClass(),
-            state.getMarkdownFiles());
+                state.getMarkdownFiles());
+        /*设置上传资料*/
+        if (StringUtils.isNotEmpty(state.getUsername()) &&
+                StringUtils.isNotEmpty(state.getHost())) {
+            ((ConfigImpl) config).setUsername(state.getUsername());
+            ((ConfigImpl) config).setPassword(state.getPassword());
+            ((ConfigImpl) config).setHost(state.getHost());
+            ((ConfigImpl) config).setRemotePath(state.getRemotePath());
+        }
         ConfigHolder.setConfig(config);
         /*注册探针服务*/
         ServerManager.registryServer(Probe.class, new FileProbe());
@@ -122,6 +138,8 @@ public class BuildTask extends Task.Backgroundable {
         ServerManager.registryServer(DocBuilder.class, new DocBuilderImpl());
         /*注册jar包生成服务*/
         ServerManager.registryServer(JarBuilder.class, new JarBuilderImpl());
+
+
         updateProgress(0.1f);
         return config;
     }
@@ -172,7 +190,7 @@ public class BuildTask extends Task.Backgroundable {
     public void buildJar(JarBuilder jarBuilder, String workSpace, String srcDir) {
         this.setTitle("generating");
         jarBuilder.buildJar(srcDir, workSpace);
-        updateProgress(0.2f);
+        updateProgress(0.1f);
     }
 
     private void updateProgress(float f) {
@@ -182,10 +200,26 @@ public class BuildTask extends Task.Backgroundable {
     private void showInfo(String info) {
         StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
         JBPopupFactory.getInstance()
-            .createHtmlTextBalloonBuilder(info, MessageType.INFO, null)
-            .setFadeoutTime(7500)
-            .createBalloon()
-            .show(RelativePoint.getCenterOf(statusBar.getComponent()), Position.atRight);
+                .createHtmlTextBalloonBuilder(info, MessageType.INFO, null)
+                .setFadeoutTime(7500)
+                .createBalloon()
+                .show(RelativePoint.getCenterOf(statusBar.getComponent()), Position.atRight);
     }
+
+
+    private void uploadJar(String username, String password, String host, String remotePath, String workspace) {
+        this.setTitle("uploading");
+        String targetFile = workspace + "api-doc.jar";
+        Integer port = 22;
+        Deliveryman deliveryman = new DeliverymanImpl(targetFile, host, username, password, port, remotePath);
+        try {
+            deliveryman.doDeliver();
+        } catch (UplodaException e) {
+            e.printStackTrace();
+            showInfo(e.getMsg());
+        }
+        updateProgress(0.1f);
+    }
+
 
 }

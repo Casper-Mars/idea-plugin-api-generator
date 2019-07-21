@@ -1,5 +1,7 @@
 package org.r.idea.plugin.generator.core.upload;
 
+import org.r.idea.plugin.generator.core.exceptions.UplodaException;
+
 public interface Deliveryman {
 
 
@@ -38,7 +40,7 @@ public interface Deliveryman {
     /**
      * 上传
      */
-    void doDeliver();
+    void doDeliver() throws UplodaException;
 
 
 }

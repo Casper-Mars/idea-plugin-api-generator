@@ -34,6 +34,10 @@ public class SettingPanel {
     private JTextField baseClass;
     private JTextField mdText;
     private JButton mdBut;
+    private JTextField usernameText;
+    private JTextField passwordText;
+    private JTextField hostText;
+    private JTextField remotePathText;
 
     public JComponent getPanel(SettingState state) {
 
@@ -89,6 +93,10 @@ public class SettingPanel {
         setOutputFileText(state.getOutputFilePaths());
         setBaseClassText(state.getBaseClass());
         setMdText(state.getMarkdownFiles());
+        setUsernameText(state.getUsername());
+        setPasswordText(state.getPassword());
+        setHostText(state.getHost());
+        setRemotePathText(state.getRemotePath());
     }
 
 
@@ -181,6 +189,45 @@ public class SettingPanel {
         this.mdText.setText(mdText);
     }
 
+
+    public void setUsernameText(String username) {
+        this.usernameText.setText(username);
+    }
+
+    public String getUsernameText() {
+        return this.usernameText.getText();
+    }
+
+    public void setPasswordText(String password) {
+        this.passwordText.setText(password);
+    }
+
+    public String getPassword() {
+        return this.passwordText.getText();
+    }
+
+    public void setHostText(String host) {
+        this.hostText.setText(host);
+    }
+
+    public String getHostText() {
+        return this.hostText.getText();
+    }
+
+    public void setRemotePathText(String remotePath) {
+        this.remotePathText.setText(remotePath);
+    }
+
+    public String getRemotePathText() {
+        return this.remotePathText.getText();
+    }
+
+    /**
+     * 判断路径是否有效
+     *
+     * @param path 路径
+     * @return
+     */
     private boolean isNotVaildPath(String path) {
         return StringUtils.isEmpty(path);
     }

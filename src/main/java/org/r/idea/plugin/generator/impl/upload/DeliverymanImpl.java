@@ -1,6 +1,7 @@
 package org.r.idea.plugin.generator.impl.upload;
 
 import com.jcraft.jsch.*;
+import org.r.idea.plugin.generator.core.exceptions.UplodaException;
 import org.r.idea.plugin.generator.core.upload.Deliveryman;
 
 import java.io.*;
@@ -84,14 +85,14 @@ public class DeliverymanImpl implements Deliveryman {
      * 上传
      */
     @Override
-    public void doDeliver() {
+    public void doDeliver() throws UplodaException {
 
 
         JSch jSch = new JSch();
         try {
             Session session = jSch.getSession(remoteUsername, remoteIp, port);
             if (session == null) {
-                // TODO: 19-7-21 抛出异常
+                throw new UplodaException("无法打开链接");
             }
             session.setPassword(password);
             session.setConfig("StrictHostKeyChecking", "no");
@@ -105,14 +106,18 @@ public class DeliverymanImpl implements Deliveryman {
             System.out.println("check");
             String checkCmd = "kill -9 `ps -ef | grep api-doc.jar | grep -v grep | awk '{print $2}'`";
             execCmd(session, checkCmd);
+            System.out.println("mv");
+            String mvCmd = "mv " + remoteFilePath + "api-doc-t.jar " + remoteFilePath + "api-doc.jar";
+            execCmd(session, mvCmd);
             System.out.println("run");
-            String runCmd = "cd " + remoteFilePath + "&& mv api-doc-t.jar api-doc.jar && java -jar -Dserver.port=18180 api-doc.jar > logfile.log 2>&1";
+            String runCmd = "java -jar -Dserver.port=18180 " + remoteFilePath + "api-doc.jar > logfile.log 2>&1";
             execCmd(session, runCmd);
             System.out.println("finish");
             session.disconnect();
 
         } catch (JSchException | FileNotFoundException | SftpException e) {
             e.printStackTrace();
+            throw new UplodaException("上传有误，检查网络链接以及服务器密码资料");
         }
 
     }
