@@ -98,12 +98,18 @@ public class DeliverymanImpl implements Deliveryman {
             session.connect(3000);
 
             /*上传jar包*/
+            System.out.println("uploading .......");
             uploadJar(session);
+            System.out.println("uploading finish");
             /*检查有没有相同的jar包在跑，有则kill*/
+            System.out.println("check");
             String checkCmd = "kill -9 `ps -ef | grep api-doc.jar | grep -v grep | awk '{print $2}'`";
             execCmd(session, checkCmd);
-            String runCmd = "mv api-doc-t.jar api-doc.jar && nohup java -jar -Dserver.port=18180 api-doc.jar > logfile.log 2>&1";
+            System.out.println("run");
+            String runCmd = "cd " + remoteFilePath + "&& mv api-doc-t.jar api-doc.jar && java -jar -Dserver.port=18180 api-doc.jar > logfile.log 2>&1";
             execCmd(session, runCmd);
+            System.out.println("finish");
+            session.disconnect();
 
         } catch (JSchException | FileNotFoundException | SftpException e) {
             e.printStackTrace();
@@ -125,8 +131,10 @@ public class DeliverymanImpl implements Deliveryman {
         ChannelSftp sftp = (ChannelSftp) session.openChannel("sftp");
         /*获取文件输入流*/
         try (InputStream in = getLocalFileInputStream(localFilename)) {
+            System.out.println("connect");
             sftp.connect();
-            sftp.put(in, remoteFilePath+"api-doc-t.jar");
+            System.out.println("put");
+            sftp.put(in, remoteFilePath + "api-doc-t.jar");
         } catch (IOException e) {
             e.printStackTrace();
             throw new FileNotFoundException();
@@ -151,7 +159,7 @@ public class DeliverymanImpl implements Deliveryman {
         exec.setCommand(cmd);
         exec.connect();
         int exitStatus = exec.getExitStatus();
+        exec.disconnect();
     }
-
 
 }
