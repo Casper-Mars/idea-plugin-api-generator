@@ -1,0 +1,139 @@
+package org.r.idea.plugin.generator.impl.upload;
+
+import com.jcraft.jsch.*;
+import org.r.idea.plugin.generator.core.upload.Deliveryman;
+
+import java.io.*;
+
+public class DeliverymanImpl implements Deliveryman {
+
+
+    private String localFilePath;
+
+    private String localFilename;
+
+    private String remoteIp;
+
+    private String remoteUsername;
+
+    private String password;
+
+    private Integer port;
+
+    private String remoteFilePath;
+
+    private String remoteFilename;
+
+
+    public DeliverymanImpl(String localFilename, String remoteIp, String remoteUsername, String password, Integer port, String remoteFilename) {
+        this.localFilename = localFilename;
+        this.remoteIp = remoteIp;
+        this.remoteUsername = remoteUsername;
+        this.password = password;
+        this.port = port;
+        this.remoteFilename = remoteFilename;
+    }
+
+    /**
+     * 获取远端的ip地址
+     *
+     * @return ip地址字符串
+     */
+    @Override
+    public String getDistanceIp() {
+        return remoteIp;
+    }
+
+    /**
+     * 获取本地待上传的文件的文件名
+     */
+    @Override
+    public String getLocalFilename() {
+        return localFilename;
+    }
+
+    /**
+     * 获取本地待上传的文件的文件路径
+     */
+    @Override
+    public String getLocalFilePath() {
+        return localFilePath;
+    }
+
+    /**
+     * 获取上传到远端的文件的文件名
+     *
+     * @return
+     */
+    @Override
+    public String getRemoteFilename() {
+        return remoteFilename;
+    }
+
+    /**
+     * 获取上传到远端的文件的文件路径
+     *
+     * @return
+     */
+    @Override
+    public String getRemoteFilePath() {
+        return remoteFilePath;
+    }
+
+    /**
+     * 上传
+     */
+    @Override
+    public void doDeliver() {
+
+
+        JSch jSch = new JSch();
+        try {
+            Session session = jSch.getSession(remoteUsername, remoteIp, port);
+            if (session == null) {
+                // TODO: 19-7-21 抛出异常
+            }
+            uploadJar(session);
+
+        } catch (JSchException | FileNotFoundException | SftpException e) {
+            e.printStackTrace();
+        }
+
+
+        /*上传jar包并重名名*/
+
+        /*检查有没有相同的jar包在跑，有则kill*/
+
+        /*重命名覆盖原来的jar包并运行*/
+
+
+    }
+
+    private void uploadJar(Session session) throws JSchException, SftpException, FileNotFoundException {
+
+        /*获取信道*/
+        ChannelSftp sftp = (ChannelSftp) session.openChannel("sftp");
+        /*获取文件输入流*/
+        try (InputStream in = getLocalFileInputStream(localFilename)) {
+            sftp.connect();
+            sftp.put(in, remoteFilename);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new FileNotFoundException();
+        }
+        sftp.disconnect();
+    }
+
+    /**
+     * 获取文件的输入流
+     *
+     * @param filenameWithPath 文件名带路径
+     * @return
+     */
+    private InputStream getLocalFileInputStream(String filenameWithPath) throws FileNotFoundException {
+        File file = new File(filenameWithPath);
+        return new FileInputStream(file);
+    }
+
+
+}
