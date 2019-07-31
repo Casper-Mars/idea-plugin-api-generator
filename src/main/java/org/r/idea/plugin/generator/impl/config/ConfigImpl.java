@@ -1,23 +1,14 @@
 package org.r.idea.plugin.generator.impl.config;
 
+import org.r.idea.plugin.generator.core.config.Config;
+import org.r.idea.plugin.generator.impl.Constants;
+import org.r.idea.plugin.generator.impl.Utils;
+import org.r.idea.plugin.generator.utils.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.r.idea.plugin.generator.core.builder.DocBuilder;
-import org.r.idea.plugin.generator.core.builder.JarBuilder;
-import org.r.idea.plugin.generator.core.config.Config;
-import org.r.idea.plugin.generator.core.parser.Parser;
-import org.r.idea.plugin.generator.core.probe.Probe;
-import org.r.idea.plugin.generator.impl.Constants;
-import org.r.idea.plugin.generator.impl.Utils;
-import org.r.idea.plugin.generator.impl.builder.DocBuilderImpl;
-import org.r.idea.plugin.generator.impl.builder.JarBuilderImpl;
-import org.r.idea.plugin.generator.impl.parser.InterfaceParser;
-import org.r.idea.plugin.generator.impl.probe.FileProbe;
-import org.r.idea.plugin.generator.utils.CollectionUtils;
-import org.r.idea.plugin.generator.utils.StringUtils;
 
 /**
  * @ClassName ConfigImpl
