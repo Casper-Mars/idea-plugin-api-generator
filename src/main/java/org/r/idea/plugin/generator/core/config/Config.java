@@ -25,13 +25,4 @@ public interface Config {
 
     boolean isDebug();
 
-    String getUsername();
-
-    String getPassword();
-
-    String getHost();
-
-    String getRemotePath();
-
-
 }

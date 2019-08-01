@@ -6,6 +6,7 @@ import org.r.idea.plugin.generator.core.config.ConfigBean;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.nodes.Node;
 import org.r.idea.plugin.generator.core.parser.Parser;
+import org.r.idea.plugin.generator.core.processor.AbstractProcessorNode;
 import org.r.idea.plugin.generator.core.processor.ProcessorNode;
 import org.r.idea.plugin.generator.impl.parser.InterfaceParser;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
@@ -17,18 +18,18 @@ import java.util.List;
  * @Author Casper
  * @DATE 2019/7/31 22:13
  **/
-public class ParseProcessorNode implements ProcessorNode<Context> {
+public class ParseProcessorNode extends AbstractProcessorNode<Context> {
 
     private String title = "parsing file";
 
     /**
-     * 执行处理
+     * 具体节点的处理过程
      *
-     * @param context
+     * @param context 上下文
      * @return
      */
     @Override
-    public boolean doProcess(Context context) {
+    public boolean process(Context context) {
         context.setTitle(title);
         ConfigBean configurations = context.getConfigurations();
         if (configurations == null) {
@@ -59,4 +60,5 @@ public class ParseProcessorNode implements ProcessorNode<Context> {
         context.setInterfaceNode(interfaceNode);
         return true;
     }
+
 }

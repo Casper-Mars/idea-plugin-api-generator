@@ -15,5 +15,12 @@ public interface ProcessorNode<T> {
      */
     boolean doProcess(T context);
 
+    /**
+     * 添加下一个节点
+     *
+     * @param next 下一个节点
+     * @return
+     */
+    ProcessorNode<T> addNext(ProcessorNode<T> next);
 
 }

@@ -108,22 +108,18 @@ public class ConfigImpl implements Config {
         return this.isDebug;
     }
 
-    @Override
     public String getUsername() {
         return username;
     }
 
-    @Override
     public String getPassword() {
         return password;
     }
 
-    @Override
     public String getHost() {
         return host;
     }
 
-    @Override
     public String getRemotePath() {
         return remotePath;
     }

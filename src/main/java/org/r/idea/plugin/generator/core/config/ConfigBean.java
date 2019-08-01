@@ -6,7 +6,7 @@ import java.util.List;
  * @Author Casper
  * @DATE 2019/7/31 20:43
  **/
-public class ConfigBean {
+public class ConfigBean implements Config{
 
 
     /**
@@ -36,25 +36,12 @@ public class ConfigBean {
             "BigDecimal", "LocalDateTime", "BigDecimal", "boolean", "Boolean", "BindingResult", "Date", "byte", "Byte"
     };
 
-    /**
-     * 服务器用户名
-     */
-    private String username;
 
     /**
-     * 服务器密码
+     * 服务器配置
      */
-    private String password;
+    private SSHConfigBean sshConfigBean;
 
-    /**
-     * 服务器地址
-     */
-    private String host;
-
-    /**
-     * 服务器远端路径
-     */
-    private String remotePath;
 
     public List<String> getInterfaceFilePaths() {
         return interfaceFilePaths;
@@ -62,6 +49,11 @@ public class ConfigBean {
 
     public void setInterfaceFilePaths(List<String> interfaceFilePaths) {
         this.interfaceFilePaths = interfaceFilePaths;
+    }
+
+    @Override
+    public List<String> getInterfaceFilesPath() {
+        return interfaceFilePaths;
     }
 
     public String getWorkSpace() {
@@ -96,35 +88,13 @@ public class ConfigBean {
         this.baseClass = baseClass;
     }
 
-    public String getUsername() {
-        return username;
+    public SSHConfigBean getSshConfigBean() {
+        return sshConfigBean;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public String getRemotePath() {
-        return remotePath;
-    }
-
-    public void setRemotePath(String remotePath) {
-        this.remotePath = remotePath;
+    public void setSshConfigBean(SSHConfigBean sshConfigBean) {
+        this.sshConfigBean = sshConfigBean;
     }
 }
+
+

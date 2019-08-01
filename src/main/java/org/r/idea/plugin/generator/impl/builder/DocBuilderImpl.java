@@ -74,10 +74,9 @@ public class DocBuilderImpl implements DocBuilder {
     }
 
     @Override
-    public String buildDocWithSaving(List<Node> nodes) {
+    public String buildDocWithSaving(List<Node> nodes,String workSpace) {
         List<FileBO> fileBOS = buildDoc(nodes);
         /*保存生成的文档*/
-        String workSpace = ConfigHolder.getConfig().getWorkSpace();
         return saveDoc(fileBOS, workSpace);
     }
 

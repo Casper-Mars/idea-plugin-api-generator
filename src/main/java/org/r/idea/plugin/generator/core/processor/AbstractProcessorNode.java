@@ -1,8 +1,5 @@
 package org.r.idea.plugin.generator.core.processor;
 
-import com.intellij.openapi.progress.ProgressIndicator;
-import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
-
 /**
  * @Author Casper
  * @DATE 2019/7/31 20:31
@@ -38,11 +35,17 @@ public abstract class AbstractProcessorNode<T> implements ProcessorNode<T> {
     @Override
     public boolean doProcess(T context) {
 
-        boolean isContinue = process(context);
-        if (!isContinue) return false;
+        if (context == null) {
+            return false;
+        }
+
         ProcessorNode<T> next = getNext();
-        if (next == null) return true;
-        return next.doProcess(context);
+
+        if (process(context) && next != null) {
+            return next.doProcess(context);
+        }
+
+        return false;
     }
 
 

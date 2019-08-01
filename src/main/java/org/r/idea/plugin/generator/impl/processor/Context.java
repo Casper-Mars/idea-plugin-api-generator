@@ -3,8 +3,10 @@ package org.r.idea.plugin.generator.impl.processor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.psi.PsiClass;
+import org.r.idea.plugin.generator.core.beans.FileBO;
 import org.r.idea.plugin.generator.core.config.ConfigBean;
 import org.r.idea.plugin.generator.core.nodes.Node;
+import org.r.idea.plugin.generator.core.probe.Probe;
 import org.r.idea.plugin.generator.gui.beans.SettingState;
 
 import java.util.List;
@@ -46,6 +48,57 @@ public class Context {
      */
     private List<Node> interfaceNode;
 
+    /**
+     * 产生的源文件的路径
+     */
+    private String srcDir;
+
+    /**
+     * 需要上传的jar包的全路径
+     */
+    private String targetJarFile;
+
+    /**
+     * 文件属性
+     */
+    private List<FileBO> fileBOS;
+
+    /**
+     * 文件探针，处理文件操作
+     */
+    private Probe fileProbe;
+
+    public Probe getFileProbe() {
+        return fileProbe;
+    }
+
+    public void setFileProbe(Probe fileProbe) {
+        this.fileProbe = fileProbe;
+    }
+
+    public List<FileBO> getFileBOS() {
+        return fileBOS;
+    }
+
+    public void setFileBOS(List<FileBO> fileBOS) {
+        this.fileBOS = fileBOS;
+    }
+
+    public String getSrcDir() {
+        return srcDir;
+    }
+
+    public void setSrcDir(String srcDir) {
+        this.srcDir = srcDir;
+    }
+
+    public String getTargetJarFile() {
+        return targetJarFile;
+    }
+
+    public void setTargetJarFile(String targetJarFile) {
+        this.targetJarFile = targetJarFile;
+    }
 
     public List<Node> getInterfaceNode() {
         return interfaceNode;

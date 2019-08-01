@@ -21,5 +21,5 @@ public interface DocBuilder {
 
     List<FileBO> buildDoc(List<Node> nodes);
 
-    String buildDocWithSaving(List<Node> nodes);
+    String buildDocWithSaving(List<Node> nodes,String workSpace);
 }

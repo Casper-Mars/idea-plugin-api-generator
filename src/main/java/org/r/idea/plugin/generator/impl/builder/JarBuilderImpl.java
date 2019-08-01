@@ -52,7 +52,12 @@ public class JarBuilderImpl implements JarBuilder {
 
         /*查询所有的源文件*/
         List<File> fileList = ServerManager.getServer(Probe.class)
-            .searchFile(srcDir, pathname -> pathname.getName().endsWith(".java"));
+                .searchFile(srcDir, pathname -> pathname.getName().endsWith(".java"));
+        buildJar(fileList, workSpace);
+    }
+
+    @Override
+    public void buildJar(List<File> fileList, String workSpace) {
         List<String> srcJava = fileList.stream().map(File::getAbsolutePath).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(srcJava)) {
             System.out.println("源文件不存在");
@@ -94,8 +99,8 @@ public class JarBuilderImpl implements JarBuilder {
             }
         }
         try (
-            InputStream in = this.getClass().getResourceAsStream(src);
-            OutputStream out = new FileOutputStream(dependence)
+                InputStream in = this.getClass().getResourceAsStream(src);
+                OutputStream out = new FileOutputStream(dependence)
         ) {
             FileUtils.copy(out, in);
         } catch (IOException e) {
@@ -107,7 +112,7 @@ public class JarBuilderImpl implements JarBuilder {
     /**
      * 编译源文件并输入到指定的临时目录
      *
-     * @param javaSrc 源文件路径信息
+     * @param javaSrc   源文件路径信息
      * @param workSpace 工作空间
      */
     private void compile(List<String> javaSrc, String workSpace) {

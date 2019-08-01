@@ -31,6 +31,7 @@ import org.r.idea.plugin.generator.core.exceptions.UplodaException;
 import org.r.idea.plugin.generator.core.nodes.Node;
 import org.r.idea.plugin.generator.core.parser.Parser;
 import org.r.idea.plugin.generator.core.probe.Probe;
+import org.r.idea.plugin.generator.core.processor.ProcessorNode;
 import org.r.idea.plugin.generator.core.upload.Deliveryman;
 import org.r.idea.plugin.generator.gui.beans.SettingState;
 import org.r.idea.plugin.generator.gui.service.StorageService;
@@ -40,6 +41,7 @@ import org.r.idea.plugin.generator.impl.builder.JarBuilderImpl;
 import org.r.idea.plugin.generator.impl.config.ConfigImpl;
 import org.r.idea.plugin.generator.impl.parser.InterfaceParser;
 import org.r.idea.plugin.generator.impl.probe.FileProbe;
+import org.r.idea.plugin.generator.impl.processor.*;
 import org.r.idea.plugin.generator.impl.upload.DeliverymanImpl;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
 import org.r.idea.plugin.generator.utils.StringUtils;
@@ -62,43 +64,43 @@ public class BuildTask extends Task.Backgroundable {
         this.project = project;
     }
 
-    @Override
-    public void run(@NotNull ProgressIndicator indicator) {
-        long start = System.currentTimeMillis();
-        this.indicator = indicator;
-        indicator.setIndeterminate(true);
-        indicator.setFraction(0.0f);
-        /*获取配置*/
-        Config config = getConfig();
-        if (config == null) {
-            showInfo("配置有误，请确保接口目录和输出目录不为空");
-            return;
-        }
-        /*搜索接口文件*/
-        List<PsiClass> psiClasses = searchAllInterface(config);
-        if (CollectionUtils.isEmpty(psiClasses)) {
-            showInfo("找不到接口文件");
-            return;
-        }
-        /*转化接口*/
-        List<Node> nodes = parseFile(Parser.getInstance(), psiClasses);
-        if (CollectionUtils.isEmpty(nodes)) {
-            showInfo("解析有误");
-            return;
-        }
-        /*生成文档源文件*/
-        String srcDir = buildDoc(DocBuilder.getInstance(), nodes);
-        /*生成jar包*/
-        buildJar(JarBuilder.getInstance(), config.getWorkSpace(), srcDir);
-        /*上传到服务器*/
-        uploadJar(config.getUsername(), config.getPassword(), config.getHost(), config.getRemotePath(), config.getWorkSpace());
-
-        indicator.setFraction(1.0);
-        indicator.setText("finish");
-
-        long end = System.currentTimeMillis();
-        showInfo("finish:" + (end - start) + " ms");
-    }
+//    @Override
+//    public void run(@NotNull ProgressIndicator indicator) {
+//        long start = System.currentTimeMillis();
+//        this.indicator = indicator;
+//        indicator.setIndeterminate(true);
+//        indicator.setFraction(0.0f);
+//        /*获取配置*/
+//        Config config = getConfig();
+//        if (config == null) {
+//            showInfo("配置有误，请确保接口目录和输出目录不为空");
+//            return;
+//        }
+//        /*搜索接口文件*/
+//        List<PsiClass> psiClasses = searchAllInterface(config);
+//        if (CollectionUtils.isEmpty(psiClasses)) {
+//            showInfo("找不到接口文件");
+//            return;
+//        }
+//        /*转化接口*/
+//        List<Node> nodes = parseFile(Parser.getInstance(), psiClasses);
+//        if (CollectionUtils.isEmpty(nodes)) {
+//            showInfo("解析有误");
+//            return;
+//        }
+//        /*生成文档源文件*/
+//        String srcDir = buildDoc(DocBuilder.getInstance(), nodes);
+//        /*生成jar包*/
+//        buildJar(JarBuilder.getInstance(), config.getWorkSpace(), srcDir);
+//        /*上传到服务器*/
+//        uploadJar(config.getUsername(), config.getPassword(), config.getHost(), config.getRemotePath(), config.getWorkSpace());
+//
+//        indicator.setFraction(1.0);
+//        indicator.setText("finish");
+//
+//        long end = System.currentTimeMillis();
+//        showInfo("finish:" + (end - start) + " ms");
+//    }
 
     private Config getConfig() {
         this.setTitle("init");
@@ -182,7 +184,7 @@ public class BuildTask extends Task.Backgroundable {
 
     private String buildDoc(DocBuilder docBuilder, List<Node> interfaceNode) {
         this.setTitle("building");
-        String srcDir = docBuilder.buildDocWithSaving(interfaceNode);
+        String srcDir = docBuilder.buildDocWithSaving(interfaceNode, "");
         updateProgress(0.2f);
         return srcDir;
     }
@@ -222,4 +224,49 @@ public class BuildTask extends Task.Backgroundable {
     }
 
 
+    @Override
+    public void run(@NotNull ProgressIndicator indicator) {
+        long start = System.currentTimeMillis();
+        StorageService storageService = StorageService.getInstance();
+        if (storageService == null) {
+            LOG.error("请先打开项目");
+            showInfo("请先打开项目");
+            return;
+        }
+        SettingState state = storageService.getState();
+        if (state == null || project == null) {
+            LOG.error("程序异常");
+            showInfo("程序异常");
+            return;
+        }
+        /*构建处理上下文*/
+        Context context = new Context();
+        context.setTask(this);
+        context.setIndicator(indicator);
+        context.setSettingState(state);
+        /*构建处理链*/
+        ProcessorNode<Context> processorNode = new ConfigProcessorNode();
+        processorNode
+                .addNext(new SearchProcessorNode())
+                .addNext(new ParseProcessorNode())
+                .addNext(new BuildProcessorNode())
+                .addNext(new SaveFileProcessorNode())
+                .addNext(new JarProcessorNode())
+                .addNext(new UploadProcessorNode());
+
+        try {
+            processorNode.doProcess(context);
+        } catch (UplodaException ue) {
+            LOG.error(ue.getMsg());
+            showInfo(ue.getMsg());
+            ue.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOG.error(e.getMessage());
+            showInfo(e.getMessage());
+        }
+
+        long end = System.currentTimeMillis();
+        showInfo("finish:" + (end - start) + " ms");
+    }
 }

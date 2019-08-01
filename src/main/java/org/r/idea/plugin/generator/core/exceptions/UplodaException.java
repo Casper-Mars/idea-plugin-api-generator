@@ -1,6 +1,6 @@
 package org.r.idea.plugin.generator.core.exceptions;
 
-public class UplodaException extends Exception {
+public class UplodaException extends RuntimeException {
 
     private String msg;
 

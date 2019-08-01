@@ -52,5 +52,9 @@ public interface Constants {
      */
     String COPYOFCONTARINERJAR = "lib/container.jar";
 
+    /**
+     * 最终生成的jar包名称
+     */
+    String TARGET_JAR_FILE = "api-doc.jar";
 
 }
