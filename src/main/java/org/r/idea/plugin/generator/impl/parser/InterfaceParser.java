@@ -1,12 +1,9 @@
 package org.r.idea.plugin.generator.impl.parser;
 
-import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiNameValuePair;
-import java.util.ArrayList;
-import java.util.List;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.nodes.Node;
 import org.r.idea.plugin.generator.core.parser.Parser;
@@ -14,6 +11,9 @@ import org.r.idea.plugin.generator.impl.Utils;
 import org.r.idea.plugin.generator.impl.nodes.InterfaceNode;
 import org.r.idea.plugin.generator.impl.nodes.MethodNode;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @ClassName InterfaceParser

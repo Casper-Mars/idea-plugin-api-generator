@@ -2,6 +2,8 @@ package org.r.idea.plugin.generator.impl.nodes;
 
 import org.r.idea.plugin.generator.core.nodes.Node;
 
+import java.util.List;
+
 /**
  * @ClassName ParamNode
  * @Author Casper
@@ -19,6 +21,12 @@ public class ParamNode extends Node {
      */
     private String typeQualifiedName;
 
+
+    /**
+     * 当参数为泛型时的元素名
+     */
+    private List<String> genericityList;
+
     /**
      * 是否实体
      */
@@ -32,7 +40,6 @@ public class ParamNode extends Node {
      * 请求时是否为数组
      */
     private boolean isArray;
-
     /**
      * 是否泛型
      */
@@ -104,4 +111,11 @@ public class ParamNode extends Node {
         this.typeQualifiedName = typeQualifiedName;
     }
 
+    public List<String> getGenericityList() {
+        return genericityList;
+    }
+
+    public void setGenericityList(List<String> genericityList) {
+        this.genericityList = genericityList;
+    }
 }

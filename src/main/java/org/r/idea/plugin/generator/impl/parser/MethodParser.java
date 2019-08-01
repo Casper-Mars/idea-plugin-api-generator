@@ -37,7 +37,6 @@ public class MethodParser {
         /*处理参数和返回值*/
         try {
             processParameterAndRespone(methodNode, target);
-
         } catch (ClassNotFoundException e) {
             e.setMsg(target.getName() + "-" + e.getMsg());
             throw e;
@@ -101,7 +100,6 @@ public class MethodParser {
         node.setChildren(paramParser.parse(target));
         ResponeParser responeParser = new ResponeParser();
         node.setResponed(responeParser.parse(target));
-
     }
 
     /**
