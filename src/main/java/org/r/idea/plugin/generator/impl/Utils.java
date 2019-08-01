@@ -36,6 +36,17 @@ public class Utils {
         return false;
     }
 
+    public static String isArrayType(String qualifiedName) {
+        if (qualifiedName.contains(Constants.ARRAYFLAG)) {
+            qualifiedName = qualifiedName.replace(Constants.ARRAYFLAG, "");
+        } else if (qualifiedName.contains(Constants.LISTFLAG)) {
+            int start = qualifiedName.indexOf(Constants.LISTFLAG);
+            int end = qualifiedName.lastIndexOf('>');
+            qualifiedName = qualifiedName.substring(start + Constants.LISTFLAG.length(), end);
+        }
+        return qualifiedName;
+    }
+
 
     /**
      * 根据给定的注释集合构造注释字符串

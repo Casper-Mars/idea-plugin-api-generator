@@ -23,29 +23,11 @@ import org.r.idea.plugin.generator.utils.CollectionUtils;
  **/
 public class ParamParser {
 
-    private GenericityIndicator genericityIndicator = GenericityIndicator.getInstance();
-
-
-    public List<Node> parse(PsiMethod method) throws ClassNotFoundException {
-        PojoParser pojoParser = new PojoParser();
+    public List<Node> parse(PsiMethod method) {
         Map<String, String> param = getParam(method);
         boolean priority = !CollectionUtils.isEmpty(param);
         PsiParameter[] parameters = method.getParameterList().getParameters();
         List<Node> paramNodeList = new ArrayList<>();
-        /*判断参数如下性质：
-         * 是否为数组
-         * 是否为json实体
-         * 是否为实体
-         * 是否为泛型
-         * 是否必传的
-         * 参数的类型
-         * 参数名称
-         * */
-        /*参数过滤
-         * 1 过滤数组、list
-         * 2 过滤泛型参数
-         * 3
-         *  */
         for (PsiParameter parameter : parameters) {
             ParamNode paramNode = new ParamNode();
             if (priority) {
@@ -61,15 +43,19 @@ public class ParamParser {
                 paramNodeList.add(paramNode);
             }
             paramNode.setTypeQualifiedName(getType(parameter));
+            /*过滤数组、list,是否为数组*/
             arrayFilter(paramNode);
+            /*过滤泛型参数,是否为泛型*/
             genericityFilter(paramNode);
+            /*是否为实体*/
             entityFilter(paramNode);
+            /*是否必传的*/
             requeryFilter(paramNode);
+            /*是否为json实体*/
             paramNode.setJson(
                     Utils.isContainAnnotation("org.springframework.web.bind.annotation.RequestBody", parameter.getAnnotations()));
             paramNode.setName(parameter.getName());
-            List<String> entity = getEntity(parameter.getTypeElement());
-
+            getEntity(parameter.getTypeElement());
         }
         return paramNodeList;
     }
@@ -111,13 +97,7 @@ public class ParamParser {
 
     private void arrayFilter(ParamNode paramNode) {
         String type = paramNode.getTypeQualifiedName();
-        if (type.contains(Constants.ARRAYFLAG)) {
-            type = type.replace(Constants.ARRAYFLAG, "");
-        } else if (type.contains(Constants.LISTFLAG)) {
-            int start = type.indexOf(Constants.LISTFLAG);
-            int end = type.lastIndexOf('>');
-            type = type.substring(start + Constants.LISTFLAG.length(), end);
-        }
+        type = Utils.isArrayType(type);
         paramNode.setTypeQualifiedName(type);
     }
 
@@ -145,30 +125,25 @@ public class ParamParser {
         paramNode.setRequired(false);
     }
 
-    private List<String> getEntity(PsiTypeElement element) {
+    private void getEntity(PsiTypeElement element) {
         if (element == null) {
-            return null;
+            return;
         }
         PsiJavaCodeReferenceElement referenceElement = element.getInnermostComponentReferenceElement();
         if (referenceElement == null) {
-            return null;
+            return;
         }
-        List<String> target = new ArrayList<>();
         String name = referenceElement.getQualifiedName();
         if (!Utils.isBaseClass(name)) {
-            target.add(name);
+            EntityContainer.addEntityType(name);
         }
         PsiReferenceParameterList parameterList = referenceElement.getParameterList();
         if (parameterList != null) {
             PsiTypeElement[] elements = parameterList.getTypeParameterElements();
             for (PsiTypeElement tmp : elements) {
-                List<String> entity = getEntity(tmp);
-                if (CollectionUtils.isNotEmpty(entity)) {
-                    target.addAll(entity);
-                }
+                getEntity(tmp);
             }
         }
-        return target;
     }
 
 

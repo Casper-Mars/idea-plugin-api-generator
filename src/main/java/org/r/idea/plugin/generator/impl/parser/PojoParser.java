@@ -32,47 +32,6 @@ public class PojoParser {
     public ParamNode parse(String qualifiedName) throws ClassNotFoundException {
 
 
-
-
-
-
-
-
-
-        ParamNode paramNode;
-
-        List<String> typeParams = new ArrayList<>();
-        String type = isArray(qualifiedName);
-        boolean isArray = type.length() < qualifiedName.length();
-        /*判断是否泛型*/
-        if (!genericityIndicator.isGenricityType(type, typeParams)) {
-            /*非泛型*/
-            paramNode = parserPojo(type);
-            paramNode.setArray(isArray);
-
-        } else {
-            /*只处理一元的泛型，并默认为list*/
-//            String type = typeParams.get(0);
-            paramNode = parserPojo(type);
-            paramNode.setArray(isArray);
-        }
-
-        return paramNode;
-    }
-
-    private String isArray(String type) {
-        if (type.contains(Constants.ARRAYFLAG)) {
-            type = type.replace(Constants.ARRAYFLAG, "");
-        } else if (type.contains(Constants.LISTFLAG)) {
-            int start = type.indexOf(Constants.LISTFLAG);
-            int end = type.lastIndexOf('>');
-            type = type.substring(start+Constants.LISTFLAG.length(),end);
-        }
-        return type;
-    }
-
-
-    private ParamNode parserPojo(String qualifiedName) throws ClassNotFoundException {
         ParamNode paramNode = new ParamNode();
         /*先判断是否为基本类型*/
         if (Utils.isBaseClass(qualifiedName)) {
@@ -102,6 +61,12 @@ public class PojoParser {
         }
         return paramNode;
     }
+
+    private String isArray(String type) {
+        return Utils.isArrayType(type);
+    }
+
+
 
 
     /**
