@@ -6,7 +6,7 @@ import java.util.List;
  * @Author Casper
  * @DATE 2019/7/31 20:43
  **/
-public class ConfigBean{
+public class ConfigBean {
 
 
     /**
@@ -33,7 +33,8 @@ public class ConfigBean{
      * 基础类
      */
     private String[] baseClass = {"String", "Long", "int", "long", "char", "Integer", "double", "Double",
-            "BigDecimal", "LocalDateTime", "BigDecimal", "boolean", "Boolean", "BindingResult", "Date", "byte", "Byte"
+            "BigDecimal", "LocalDateTime", "BigDecimal", "boolean", "Boolean", "BindingResult", "Date", "byte",
+            "Byte", "List", "Map", "Collection"
     };
 
 
