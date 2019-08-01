@@ -15,10 +15,10 @@ public class AppenderChain {
 
     public static List<JarFileAppender> getAppenderChain() {
         AppenderChain appenderChain = new AppenderChain();
-        appenderChain
-                .addAppender(new ClassAppender())
-                .addAppender(new MarkdownAppender())
-                .addAppender(new ContainJarAppender());
+//        appenderChain
+//                .addAppender(new ClassAppender())
+//                .addAppender(new MarkdownAppender())
+//                .addAppender(new ContainJarAppender());
         return appenderChain.getChain();
     }
 

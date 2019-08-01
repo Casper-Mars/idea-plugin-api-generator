@@ -3,6 +3,7 @@ package org.r.idea.plugin.generator.impl.builder.appender;
 import org.r.idea.plugin.generator.core.ConfigHolder;
 import org.r.idea.plugin.generator.core.builder.JarFileAppender;
 import org.r.idea.plugin.generator.core.config.Config;
+import org.r.idea.plugin.generator.core.probe.Probe;
 import org.r.idea.plugin.generator.impl.Constants;
 import org.r.idea.plugin.generator.utils.FileUtils;
 
@@ -24,9 +25,7 @@ public class ContainJarAppender implements JarFileAppender {
 
 
     @Override
-    public void copyFileToJar(JarOutputStream out) {
-        Config config = ConfigHolder.getConfig();
-        String workSpace = config.getWorkSpace();
+    public void copyFileToJar(JarOutputStream out, Probe probe, String workSpace) {
         try (JarFile container = new JarFile(workSpace + Constants.COPYOFCONTARINERJAR)) {
 
             Enumeration<JarEntry> entries = container.entries();

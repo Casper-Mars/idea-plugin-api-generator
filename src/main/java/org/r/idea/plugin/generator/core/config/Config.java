@@ -1,12 +1,6 @@
 package org.r.idea.plugin.generator.core.config;
 
-import java.io.File;
 import java.util.List;
-
-import org.r.idea.plugin.generator.core.builder.DocBuilder;
-import org.r.idea.plugin.generator.core.builder.JarBuilder;
-import org.r.idea.plugin.generator.core.parser.Parser;
-import org.r.idea.plugin.generator.core.probe.Probe;
 
 /**
  * @ClassName Config

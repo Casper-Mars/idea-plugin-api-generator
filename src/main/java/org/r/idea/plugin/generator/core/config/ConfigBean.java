@@ -6,7 +6,7 @@ import java.util.List;
  * @Author Casper
  * @DATE 2019/7/31 20:43
  **/
-public class ConfigBean implements Config{
+public class ConfigBean{
 
 
     /**
@@ -49,11 +49,6 @@ public class ConfigBean implements Config{
 
     public void setInterfaceFilePaths(List<String> interfaceFilePaths) {
         this.interfaceFilePaths = interfaceFilePaths;
-    }
-
-    @Override
-    public List<String> getInterfaceFilesPath() {
-        return interfaceFilePaths;
     }
 
     public String getWorkSpace() {

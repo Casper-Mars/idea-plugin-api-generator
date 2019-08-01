@@ -1,5 +1,7 @@
 package org.r.idea.plugin.generator.core.builder;
 
+import org.r.idea.plugin.generator.core.probe.Probe;
+
 import java.util.jar.JarOutputStream;
 
 /**
@@ -9,8 +11,7 @@ import java.util.jar.JarOutputStream;
 public interface JarFileAppender {
 
 
-
-    void copyFileToJar(JarOutputStream out);
+    void copyFileToJar(JarOutputStream out, Probe probe, String workSpace);
 
 
 }

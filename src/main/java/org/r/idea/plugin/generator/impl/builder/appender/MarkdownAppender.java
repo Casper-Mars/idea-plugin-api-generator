@@ -25,13 +25,18 @@ public class MarkdownAppender implements JarFileAppender {
     //    AppenderChain.addNode(new MarkdownAppender());
     //}
 
-    @Override
-    public void copyFileToJar(JarOutputStream out) {
+    private String markdownPath;
 
-        String markdownPath = ConfigHolder.getConfig().getMarkdownPath();
+    public MarkdownAppender(String markdownPath) {
+        this.markdownPath = markdownPath;
+    }
+
+    @Override
+    public void copyFileToJar(JarOutputStream out, Probe probe, String workSpace) {
+
         /*获取markdown文件路径信息*/
-        List<File> markdowns = Probe.getInstance()
-            .searchFile(markdownPath, pathname -> pathname.getName().endsWith(".md"));
+        List<File> markdowns = probe
+                .searchFile(markdownPath, pathname -> pathname.getName().endsWith(".md"));
         if (CollectionUtils.isEmpty(markdowns)) {
             return;
         }

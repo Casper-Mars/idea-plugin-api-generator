@@ -1,17 +1,12 @@
 package org.r.idea.plugin.generator.impl.processor;
 
-import com.intellij.openapi.progress.Task;
-import org.r.idea.plugin.generator.core.ConfigHolder;
 import org.r.idea.plugin.generator.core.config.ConfigBean;
 import org.r.idea.plugin.generator.core.config.SSHConfigBean;
-import org.r.idea.plugin.generator.core.config.ServerManager;
 import org.r.idea.plugin.generator.core.probe.Probe;
 import org.r.idea.plugin.generator.core.processor.AbstractProcessorNode;
-import org.r.idea.plugin.generator.core.processor.ProcessorNode;
 import org.r.idea.plugin.generator.gui.beans.SettingState;
 import org.r.idea.plugin.generator.impl.Constants;
 import org.r.idea.plugin.generator.impl.Utils;
-import org.r.idea.plugin.generator.impl.config.ConfigImpl;
 import org.r.idea.plugin.generator.impl.probe.FileProbe;
 import org.r.idea.plugin.generator.utils.StringUtils;
 
@@ -62,13 +57,12 @@ public class ConfigProcessorNode extends AbstractProcessorNode<Context> {
             sshConfigBean.setPort(22);
             configBean.setSshConfigBean(sshConfigBean);
         }
+        configBean.setDebug(true);
         Probe fileProbe = new FileProbe();
         /*设置文件探针*/
         context.setFileProbe(fileProbe);
-        /*注册探针服务*/
-        ServerManager.registryServer(Probe.class, fileProbe);
         context.setConfigurations(configBean);
-        ConfigHolder.setConfig(configBean);
+
         context.updateProgress(0.1f);
         return true;
     }

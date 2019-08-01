@@ -22,13 +22,17 @@ public class ClassAppender implements JarFileAppender {
     //    AppenderChain.addNode(new ClassAppender());
     //}
 
+    private String classOutputPath;
+
+
+    public ClassAppender(String classOutputPath) {
+        this.classOutputPath = classOutputPath;
+    }
 
     @Override
-    public void copyFileToJar(JarOutputStream out) {
-        String workSpace = ConfigHolder.getConfig().getWorkSpace();
-        String classOutputPath = workSpace + Constants.TMP_CLASS_DIR;
+    public void copyFileToJar(JarOutputStream out, Probe probe, String workSpace) {
         /*获取class文件路径信息*/
-        List<File> clazz = Probe.getInstance()
+        List<File> clazz = probe
             .searchFile(classOutputPath, pathname -> pathname.getName().endsWith(".class"));
         if (CollectionUtils.isEmpty(clazz)) {
             return;
