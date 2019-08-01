@@ -6,10 +6,7 @@ import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
 import com.intellij.psi.javadoc.PsiDocToken;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.indicators.GenericityIndicator;
@@ -45,32 +42,32 @@ public class ParamParser {
          * 参数名称
          * */
         /*参数过滤
-        * 1 过滤数组，list
-        * 2 过滤泛型参数
-        * 3
-        *  */
+         * 1 过滤数组、list
+         * 2 过滤泛型参数
+         * 3
+         *  */
         for (PsiParameter parameter : parameters) {
             ParamNode paramNode = new ParamNode();
-            String rawType = getType(parameter);
-            String type = isArray(rawType);
-            paramNode.setArray(type.length() < rawType.length());
-            paramNode.setJson(
-                    Utils.isContainAnnotation("org.springframework.web.bind.annotation.RequestBody", parameter.getAnnotations()));
-            paramNode.setEntity(isEntity(parameter));
-            paramNode.setGenericity(isGenericity(parameter));
-            paramNode.setRequired(isRequery(parameter));
-            paramNode.setTypeQualifiedName(getType(parameter));
-            paramNode.setName(parameter.getName());
             if (priority) {
                 String desc = param.get(parameter.getName());
                 if (desc != null) {
                     paramNode.setDesc(desc);
                     paramNodeList.add(paramNode);
+                } else {
+                    continue;
                 }
             } else {
                 paramNode.setDesc("");
                 paramNodeList.add(paramNode);
             }
+            paramNode.setTypeQualifiedName(getType(parameter));
+            arrayFilter(paramNode);
+            genericityFilter(paramNode);
+            entityFilter(paramNode);
+            requeryFilter(paramNode);
+            paramNode.setJson(
+                    Utils.isContainAnnotation("org.springframework.web.bind.annotation.RequestBody", parameter.getAnnotations()));
+            paramNode.setName(parameter.getName());
             List<String> entity = getEntity(parameter.getTypeElement());
 
         }
@@ -112,7 +109,8 @@ public class ParamParser {
         return result;
     }
 
-    private String isArray(String type) {
+    private void arrayFilter(ParamNode paramNode) {
+        String type = paramNode.getTypeQualifiedName();
         if (type.contains(Constants.ARRAYFLAG)) {
             type = type.replace(Constants.ARRAYFLAG, "");
         } else if (type.contains(Constants.LISTFLAG)) {
@@ -120,31 +118,37 @@ public class ParamParser {
             int end = type.lastIndexOf('>');
             type = type.substring(start + Constants.LISTFLAG.length(), end);
         }
-        return type;
+        paramNode.setTypeQualifiedName(type);
     }
 
     private String getType(PsiParameter parameter) {
         return parameter.getType().getCanonicalText();
     }
 
-    private boolean isEntity(PsiParameter parameter) {
-        String canonicalText = parameter.getType().getCanonicalText();
-
-
-        return false;
+    private void entityFilter(ParamNode paramNode) {
+        paramNode.setEntity(!Utils.isBaseClass(paramNode.getTypeQualifiedName()));
     }
 
-    private boolean isGenericity(PsiParameter parameter) {
-        String canonicalText = parameter.getType().getCanonicalText();
-
-        return genericityIndicator.isGenricityType(canonicalText, new ArrayList<>());
+    private void genericityFilter(ParamNode paramNode) {
+        String type = paramNode.getTypeQualifiedName();
+        int left = type.indexOf('<');
+        int right = type.lastIndexOf('>');
+        if (left - right != 0) {
+            String substring = type.substring(left + 1, right);
+            String[] split = substring.split(Constants.SPLITOR);
+            paramNode.setTypeQualifiedName(type.substring(0, left));
+            paramNode.setGenericityList(new ArrayList<>(Arrays.asList(split)));
+        }
     }
 
-    private boolean isRequery(PsiParameter parameter) {
-        return false;
+    private void requeryFilter(ParamNode paramNode) {
+        paramNode.setRequired(false);
     }
 
     private List<String> getEntity(PsiTypeElement element) {
+        if (element == null) {
+            return null;
+        }
         PsiJavaCodeReferenceElement referenceElement = element.getInnermostComponentReferenceElement();
         if (referenceElement == null) {
             return null;

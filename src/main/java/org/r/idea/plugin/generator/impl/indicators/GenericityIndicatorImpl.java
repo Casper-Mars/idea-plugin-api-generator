@@ -21,7 +21,7 @@ public class GenericityIndicatorImpl implements GenericityIndicator {
     public boolean isGenricityType(String name, List<String> param) {
 
         int left = name.indexOf('<');
-        int right = name.indexOf('>');
+        int right = name.lastIndexOf('>');
         if (left - right != 0) {
             String substring = name.substring(left + 1, right);
             String[] split = substring.split(Constants.SPLITOR);

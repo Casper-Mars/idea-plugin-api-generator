@@ -62,7 +62,6 @@ public class ConfigProcessorNode extends AbstractProcessorNode<Context> {
         /*设置文件探针*/
         context.setFileProbe(fileProbe);
         context.setConfigurations(configBean);
-
         context.updateProgress(0.1f);
         return true;
     }
