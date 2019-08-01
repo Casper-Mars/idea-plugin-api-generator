@@ -13,6 +13,8 @@ public interface Constants {
 
     String ARRAYFLAG = "[]";
 
+    String LISTFLAG = "List<";
+
     /**
      * RequestMapping注解的value属性名称
      */

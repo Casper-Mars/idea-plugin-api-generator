@@ -34,24 +34,19 @@ public class PojoParser {
         ParamNode paramNode;
 
         List<String> typeParams = new ArrayList<>();
+        String type = isArray(qualifiedName);
+        boolean isArray = type.length() < qualifiedName.length();
         /*判断是否泛型*/
-        if (!genericityIndicator.isGenricityType(qualifiedName, typeParams)) {
+        if (!genericityIndicator.isGenricityType(type, typeParams)) {
             /*非泛型*/
-            String type = isArray(qualifiedName);
-            boolean isArray = type.length() < qualifiedName.length();
             paramNode = parserPojo(type);
             paramNode.setArray(isArray);
 
-        } else if (typeParams.size() == 1) {
-            /*只处理一元的泛型，并默认为list*/
-            String type = typeParams.get(0);
-            paramNode = parserPojo(type);
-            paramNode.setArray(true);
         } else {
-            /*其他高元泛型不支持默认为object*/
-            paramNode = new ParamNode();
-
-            paramNode.setTypeQualifiedName("java.lang.Object");
+            /*只处理一元的泛型，并默认为list*/
+//            String type = typeParams.get(0);
+            paramNode = parserPojo(type);
+            paramNode.setArray(isArray);
         }
 
         return paramNode;
@@ -59,10 +54,13 @@ public class PojoParser {
 
     private String isArray(String type) {
         if (type.contains(Constants.ARRAYFLAG)) {
-            return type.replace(Constants.ARRAYFLAG, "");
-        } else {
-            return type;
+            type = type.replace(Constants.ARRAYFLAG, "");
+        } else if (type.contains(Constants.LISTFLAG)) {
+            int start = type.indexOf(Constants.LISTFLAG);
+            int end = type.lastIndexOf('>');
+            type = type.substring(start+Constants.LISTFLAG.length(),end);
         }
+        return type;
     }
 
 
