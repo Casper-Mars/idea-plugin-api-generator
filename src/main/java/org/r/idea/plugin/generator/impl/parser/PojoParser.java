@@ -38,28 +38,17 @@ public class PojoParser {
             paramNode = new ParamNode();
             paramNode.setTypeQualifiedName(qualifiedName);
             paramNode.setEntity(false);
+            paramNode.setGenericity(false);
         } else {
-            paramNode = EntityContainer.getEntity(qualifiedName);
-            if (paramNode == null) {
-                paramNode = parseEntity(qualifiedName);
-                EntityContainer.addEntity(qualifiedName, paramNode);
-            }
+//            paramNode = EntityContainer.getEntity(qualifiedName);
+//            if (paramNode == null) {
+//                paramNode = parseEntity(qualifiedName);
+//                EntityContainer.addEntity(qualifiedName, paramNode);
+//            }
+            paramNode = parseEntity(qualifiedName);
         }
         return paramNode;
     }
-
-    /**
-     * 获取指定的类的所有属性
-     *
-     * @param target 对象
-     * @return
-     */
-    private List<PsiField> getField(PsiClass target) {
-
-        PsiField[] fields = target.getAllFields();
-        return new ArrayList<>(Arrays.asList(fields));
-    }
-
 
     private ParamNode parseEntity(String qualifiedName) throws ClassNotFoundException {
 
@@ -75,6 +64,9 @@ public class PojoParser {
         if (CollectionUtils.isNotEmpty(typeParamList)) {
             paramNode.setGenericityList(typeParamList);
             paramNode.setGenericity(true);
+        } else {
+            paramNode.setGenericity(false);
+            paramNode.setGenericityList(new ArrayList<>());
         }
 
         PsiClass tmp = target;
@@ -100,7 +92,6 @@ public class PojoParser {
         if (typeParameters.length == 0 || typeParameters[0] == null) {
             return result;
         }
-
         for (PsiTypeParameter parameter : typeParameters) {
             result.add(parameter.getText());
         }
@@ -115,7 +106,6 @@ public class PojoParser {
         if (extendsListTypes.length == 0 || extendsListTypes[0] == null) {
             return result;
         }
-
         for (PsiClassType type : extendsListTypes) {
             PsiType[] parameters = type.getParameters();
             if (parameters.length == 0 || parameters[0] == null) {
@@ -129,24 +119,28 @@ public class PojoParser {
     }
 
 
-    private void arrayFilter(ParamNode paramNode) {
-        String type = paramNode.getTypeQualifiedName();
-        String newType = Utils.isArrayType(type);
-        paramNode.setTypeQualifiedName(newType);
-        paramNode.setArray(newType.length() < type.length());
-    }
-
-    private void genericityFilter(ParamNode paramNode) {
-        String type = paramNode.getTypeQualifiedName();
-        int left = type.indexOf('<');
-        int right = type.lastIndexOf('>');
-        if (left - right != 0) {
-            String substring = type.substring(left + 1, right);
-            String[] split = substring.split(Constants.SPLITOR);
-            paramNode.setTypeQualifiedName(type.substring(0, left));
-            paramNode.setGenericityList(new ArrayList<>(Arrays.asList(split)));
-        }
-    }
+//    private void arrayFilter(ParamNode paramNode) {
+//        String type = paramNode.getTypeQualifiedName();
+//        String newType = Utils.isArrayType(type);
+//        paramNode.setTypeQualifiedName(newType);
+//        paramNode.setArray(newType.length() < type.length());
+//    }
+//
+//    private void genericityFilter(ParamNode paramNode) {
+//        String type = paramNode.getTypeQualifiedName();
+//        int left = type.indexOf('<');
+//        int right = type.lastIndexOf('>');
+//        if (left - right != 0) {
+//            String substring = type.substring(left + 1, right);
+//            String[] split = substring.split(Constants.SPLITOR);
+//            paramNode.setTypeQualifiedName(type.substring(0, left));
+//            paramNode.setGenericityList(new ArrayList<>(Arrays.asList(split)));
+//            paramNode.setGenericity(true);
+//        } else {
+//            paramNode.setGenericity(false);
+//            paramNode.setGenericityList(new ArrayList<>());
+//        }
+//    }
 
     private List<Node> getChildrenField(PsiClass target, List<String> paramterTypeList) throws ClassNotFoundException {
         List<Node> children = new ArrayList<>();
@@ -156,12 +150,9 @@ public class PojoParser {
             String type = field.getType().getCanonicalText();
             ParamNode child = new ParamNode();
             child.setTypeQualifiedName(type);
-            /*过滤数组、list,是否为数组*/
-            arrayFilter(child);
-            /*过滤泛型参数,是否为泛型*/
-            genericityFilter(child);
+            ObjectParser.decorate(child);
             int i = -1;
-            if((i=typeParamList.indexOf(child.getTypeQualifiedName()))!=-1){
+            if ((i = typeParamList.indexOf(child.getTypeQualifiedName())) != -1) {
                 child.setTypeQualifiedName(paramterTypeList.get(i));
             }
             try {

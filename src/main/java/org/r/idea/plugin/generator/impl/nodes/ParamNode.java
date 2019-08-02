@@ -49,40 +49,44 @@ public class ParamNode extends Node {
      */
     private boolean isRequired;
 
-    public boolean isRequired() {
-        return isRequired;
-    }
 
     public void setRequired(boolean required) {
         isRequired = required;
+    }
+
+
+    public void setEntity(boolean entity) {
+        isEntity = entity;
+    }
+
+
+    public void setGenericity(boolean genericity) {
+        isGenericity = genericity;
+    }
+
+
+    public void setJson(boolean json) {
+        isJson = json;
     }
 
     public boolean isEntity() {
         return isEntity;
     }
 
-    public void setEntity(boolean entity) {
-        isEntity = entity;
+    public boolean isJson() {
+        return isJson;
+    }
+
+    public boolean isArray() {
+        return isArray;
     }
 
     public boolean isGenericity() {
         return isGenericity;
     }
 
-    public void setGenericity(boolean genericity) {
-        isGenericity = genericity;
-    }
-
-    public boolean isJson() {
-        return isJson;
-    }
-
-    public void setJson(boolean json) {
-        isJson = json;
-    }
-
-    public boolean isArray() {
-        return isArray;
+    public boolean isRequired() {
+        return isRequired;
     }
 
     public void setArray(boolean array) {

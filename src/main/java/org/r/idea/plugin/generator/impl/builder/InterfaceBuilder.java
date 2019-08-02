@@ -20,7 +20,7 @@ public class InterfaceBuilder {
         String interfaceTemplate = TemplateProvider.getInterfaceTemplate();
         /*替换模板的内容*/
         interfaceTemplate = interfaceTemplate.replace("${DESCRIPTION}", node.getDesc())
-            .replace("${NAME}", node.getName());
+                .replace("${NAME}", node.getName());
         StringBuilder method = new StringBuilder();
         for (Node child : node.getChildren()) {
             MethodNode methodNode = (MethodNode) child;
@@ -39,13 +39,13 @@ public class InterfaceBuilder {
         String methodTemplate = TemplateProvider.getMethodTemplate();
         /*替换模板的内容*/
         methodTemplate = methodTemplate.replace("${URL}", node.getUrl())
-            .replace("${METHODTYPE}", node.getRequestType())
-            .replace("${DESCRIPTION}", node.getDesc())
-            .replace("${NAME}", node.getName());
+                .replace("${METHODTYPE}", node.getRequestType())
+                .replace("${DESCRIPTION}", node.getDesc())
+                .replace("${NAME}", node.getName());
         /*处理返回值*/
         ParamNode responed = (ParamNode) node.getResponed();
         methodTemplate = methodTemplate
-            .replace("${RESPONSE_NAME}", responed.getTypeShortName() + (responed.isArray() ? "[]" : ""));
+                .replace("${RESPONSE_NAME}", responed.getTypeShortName() + (responed.isArray() ? "[]" : ""));
         /*处理参数：query参数和body参数*/
         StringBuilder body = new StringBuilder();
         StringBuilder query = new StringBuilder();
@@ -66,8 +66,8 @@ public class InterfaceBuilder {
             body.deleteCharAt(body.length() - 1);
         }
         methodTemplate = methodTemplate.replace("${REQUEST_BODY}", body.toString())
-            .replace("${PARAM_LIST}", query.toString())
-            .replace("${CONTENT_TYPE}", hasJson ? "application/json" : "application/x-www-form-urlencoded");
+                .replace("${PARAM_LIST}", query.toString())
+                .replace("${CONTENT_TYPE}", hasJson ? "application/json" : "application/x-www-form-urlencoded");
 
         return methodTemplate;
     }
@@ -99,8 +99,8 @@ public class InterfaceBuilder {
             return sb.toString();
         } else {
             return String.format("@ApiImplicitParam(name = \"%s\", value = \"%s\", required = %s, dataType = \"%s\"),\n"
-                , node.getName(), node.getDesc(), node.isRequired(),
-                node.isArray() ? node.getTypeShortName() + "[]" : node.getTypeShortName());
+                    , node.getName(), node.getDesc(), node.isRequired(),
+                    node.isArray() ? node.getTypeShortName() + "[]" : node.getTypeShortName());
         }
     }
 

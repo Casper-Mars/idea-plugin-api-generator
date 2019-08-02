@@ -45,19 +45,14 @@ public class ParamParser {
                 paramNodeList.add(paramNode);
             }
             paramNode.setTypeQualifiedName(getType(parameter));
-            /*过滤数组、list,是否为数组*/
-            arrayFilter(paramNode);
-            /*过滤泛型参数,是否为泛型*/
-            genericityFilter(paramNode);
-            /*是否为实体*/
-            entityFilter(paramNode);
+            /*修饰参数节点*/
+            ObjectParser.decorate(paramNode);
             /*是否必传的*/
             requeryFilter(paramNode);
             /*是否为json实体*/
             paramNode.setJson(
                     Utils.isContainAnnotation("org.springframework.web.bind.annotation.RequestBody", parameter.getAnnotations()));
             paramNode.setName(parameter.getName());
-            getChildren(paramNode);
         }
         return paramNodeList;
     }
@@ -101,74 +96,8 @@ public class ParamParser {
         return parameter.getType().getCanonicalText();
     }
 
-    private void entityFilter(ParamNode paramNode) {
-        paramNode.setEntity(!Utils.isBaseClass(paramNode.getTypeQualifiedName()));
-    }
-
-    private void arrayFilter(ParamNode paramNode) {
-        String type = paramNode.getTypeQualifiedName();
-        String newType = Utils.isArrayType(type);
-        paramNode.setTypeQualifiedName(newType);
-        paramNode.setArray(newType.length() < type.length());
-
-    }
-
-    private void genericityFilter(ParamNode paramNode) {
-        String type = paramNode.getTypeQualifiedName();
-        int left = type.indexOf('<');
-        int right = type.lastIndexOf('>');
-        if (left - right != 0) {
-            String substring = type.substring(left + 1, right);
-            String[] split = substring.split(Constants.SPLITOR);
-            paramNode.setTypeQualifiedName(type.substring(0, left));
-            paramNode.setGenericityList(new ArrayList<>(Arrays.asList(split)));
-        }
-    }
-
     private void requeryFilter(ParamNode paramNode) {
         paramNode.setRequired(false);
     }
-
-    private void getChildren(ParamNode paramNode) throws ClassNotFoundException {
-
-        ParamNode parse = pojoParser.parse(paramNode.getTypeQualifiedName());
-        List<Node> children = parse.getChildren();
-        List<String> realParamList = paramNode.getGenericityList();
-        /*建立泛型参数的index*/
-        Map<String, Integer> index = new HashMap<>();
-        if (parse.isGenericity()) {
-            for (int i = 0; i < parse.getGenericityList().size(); i++) {
-                index.put(parse.getGenericityList().get(i), i);
-            }
-        }
-
-        List<Node> target = new ArrayList<>();
-        for (Node child : children) {
-            ParamNode tmp = ((ParamNode) child).clone();
-            if (parse.getGenericityList().contains(tmp.getTypeQualifiedName())) {
-                Integer i = index.get(tmp.getTypeQualifiedName());
-                if (i != null && CollectionUtils.isNotEmpty(realParamList)) {
-                    String s = realParamList.get(i);
-                    tmp.setTypeQualifiedName(s);
-                }
-            }
-            if (tmp.isGenericity()) {
-                List<String> tmpList = new ArrayList<>();
-                for (String s : tmp.getGenericityList()) {
-                    Integer i = index.get(s);
-                    if (i != null && CollectionUtils.isNotEmpty(realParamList)) {
-                        tmpList.add(realParamList.get(i));
-                    } else {
-                        tmpList.add(s);
-                    }
-                }
-                tmp.setGenericityList(tmpList);
-                getChildren(tmp);
-            }
-            target.add(tmp);
-        }
-        paramNode.setChildren(target);
-    }
-
 
 }
