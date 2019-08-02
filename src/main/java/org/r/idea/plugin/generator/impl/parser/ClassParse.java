@@ -3,30 +3,22 @@ package org.r.idea.plugin.generator.impl.parser;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.*;
-import com.intellij.psi.search.GlobalSearchScope;
+import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
+import org.r.idea.plugin.generator.core.nodes.Node;
+import org.r.idea.plugin.generator.impl.Constants;
+import org.r.idea.plugin.generator.impl.Utils;
+import org.r.idea.plugin.generator.impl.nodes.ParamNode;
+import org.r.idea.plugin.generator.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
-import jdk.nashorn.internal.runtime.linker.LinkerCallSite;
-import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
-import org.r.idea.plugin.generator.core.indicators.GenericityIndicator;
-import org.r.idea.plugin.generator.core.indicators.InterfaceIndicator;
-import org.r.idea.plugin.generator.impl.Constants;
-import org.r.idea.plugin.generator.impl.Utils;
-import org.r.idea.plugin.generator.core.indicators.IndicatorFactory;
-import org.r.idea.plugin.generator.core.nodes.Node;
-import org.r.idea.plugin.generator.impl.nodes.ParamNode;
-import org.r.idea.plugin.generator.utils.CollectionUtils;
+public class ClassParse {
 
-/**
- * @ClassName PojoParser
- * @Author Casper
- * @DATE 2019/6/21 11:27
- **/
-public class PojoParser {
+
+
+
 
 
     public ParamNode parse(String qualifiedName) throws ClassNotFoundException {
@@ -183,6 +175,8 @@ public class PojoParser {
         }
         return children;
     }
+
+
 
 
 }

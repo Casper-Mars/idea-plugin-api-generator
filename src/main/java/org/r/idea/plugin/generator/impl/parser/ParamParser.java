@@ -5,16 +5,15 @@ import com.intellij.psi.impl.source.javadoc.PsiDocParamRef;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
 import com.intellij.psi.javadoc.PsiDocToken;
-
-import java.util.*;
-
+import org.apache.batik.css.engine.value.svg12.ICCNamedColor;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
-import org.r.idea.plugin.generator.core.indicators.GenericityIndicator;
 import org.r.idea.plugin.generator.core.nodes.Node;
 import org.r.idea.plugin.generator.impl.Constants;
 import org.r.idea.plugin.generator.impl.Utils;
 import org.r.idea.plugin.generator.impl.nodes.ParamNode;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
+
+import java.util.*;
 
 /**
  * @ClassName ParamParser
@@ -23,7 +22,10 @@ import org.r.idea.plugin.generator.utils.CollectionUtils;
  **/
 public class ParamParser {
 
-    public List<Node> parse(PsiMethod method) {
+
+    private PojoParser pojoParser = new PojoParser();
+
+    public List<Node> parse(PsiMethod method) throws ClassNotFoundException {
         Map<String, String> param = getParam(method);
         boolean priority = !CollectionUtils.isEmpty(param);
         PsiParameter[] parameters = method.getParameterList().getParameters();
@@ -55,7 +57,7 @@ public class ParamParser {
             paramNode.setJson(
                     Utils.isContainAnnotation("org.springframework.web.bind.annotation.RequestBody", parameter.getAnnotations()));
             paramNode.setName(parameter.getName());
-            getEntity(parameter.getTypeElement());
+            getChildren(paramNode);
         }
         return paramNodeList;
     }
@@ -95,18 +97,20 @@ public class ParamParser {
         return result;
     }
 
-    private void arrayFilter(ParamNode paramNode) {
-        String type = paramNode.getTypeQualifiedName();
-        type = Utils.isArrayType(type);
-        paramNode.setTypeQualifiedName(type);
-    }
-
     private String getType(PsiParameter parameter) {
         return parameter.getType().getCanonicalText();
     }
 
     private void entityFilter(ParamNode paramNode) {
         paramNode.setEntity(!Utils.isBaseClass(paramNode.getTypeQualifiedName()));
+    }
+
+    private void arrayFilter(ParamNode paramNode) {
+        String type = paramNode.getTypeQualifiedName();
+        String newType = Utils.isArrayType(type);
+        paramNode.setTypeQualifiedName(newType);
+        paramNode.setArray(newType.length() < type.length());
+
     }
 
     private void genericityFilter(ParamNode paramNode) {
@@ -125,25 +129,45 @@ public class ParamParser {
         paramNode.setRequired(false);
     }
 
-    private void getEntity(PsiTypeElement element) {
-        if (element == null) {
-            return;
-        }
-        PsiJavaCodeReferenceElement referenceElement = element.getInnermostComponentReferenceElement();
-        if (referenceElement == null) {
-            return;
-        }
-        String name = referenceElement.getQualifiedName();
-        if (!Utils.isBaseClass(name)) {
-            EntityContainer.addEntityType(name);
-        }
-        PsiReferenceParameterList parameterList = referenceElement.getParameterList();
-        if (parameterList != null) {
-            PsiTypeElement[] elements = parameterList.getTypeParameterElements();
-            for (PsiTypeElement tmp : elements) {
-                getEntity(tmp);
+    private void getChildren(ParamNode paramNode) throws ClassNotFoundException {
+
+        ParamNode parse = pojoParser.parse(paramNode.getTypeQualifiedName());
+        List<Node> children = parse.getChildren();
+        List<String> realParamList = paramNode.getGenericityList();
+        /*建立泛型参数的index*/
+        Map<String, Integer> index = new HashMap<>();
+        if (parse.isGenericity()) {
+            for (int i = 0; i < parse.getGenericityList().size(); i++) {
+                index.put(parse.getGenericityList().get(i), i);
             }
         }
+
+        List<Node> target = new ArrayList<>();
+        for (Node child : children) {
+            ParamNode tmp = ((ParamNode) child).clone();
+            if (parse.getGenericityList().contains(tmp.getTypeQualifiedName())) {
+                Integer i = index.get(tmp.getTypeQualifiedName());
+                if (i != null && CollectionUtils.isNotEmpty(realParamList)) {
+                    String s = realParamList.get(i);
+                    tmp.setTypeQualifiedName(s);
+                }
+            }
+            if (tmp.isGenericity()) {
+                List<String> tmpList = new ArrayList<>();
+                for (String s : tmp.getGenericityList()) {
+                    Integer i = index.get(s);
+                    if (i != null && CollectionUtils.isNotEmpty(realParamList)) {
+                        tmpList.add(realParamList.get(i));
+                    } else {
+                        tmpList.add(s);
+                    }
+                }
+                tmp.setGenericityList(tmpList);
+                getChildren(tmp);
+            }
+            target.add(tmp);
+        }
+        paramNode.setChildren(target);
     }
 
 

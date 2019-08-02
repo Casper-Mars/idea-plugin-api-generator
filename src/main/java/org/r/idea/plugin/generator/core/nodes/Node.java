@@ -7,7 +7,7 @@ import java.util.List;
  * @Author Casper
  * @DATE 2019/6/21 10:17
  **/
-public class Node {
+public class Node implements Cloneable {
 
     /**
      * 名称
@@ -46,5 +46,10 @@ public class Node {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

@@ -33,5 +33,9 @@ public class EntityContainer {
         return new ArrayList<>(map.values());
     }
 
+    public synchronized static void addEntity(String type, ParamNode target) {
+        map.put(type, target);
+    }
+
 
 }

@@ -118,4 +118,28 @@ public class ParamNode extends Node {
     public void setGenericityList(List<String> genericityList) {
         this.genericityList = genericityList;
     }
+
+
+    @Override
+    public ParamNode clone() {
+        ParamNode paramNode;
+        try {
+            paramNode = (ParamNode) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            paramNode = new ParamNode();
+            paramNode.setArray(this.isArray);
+            paramNode.setEntity(this.isEntity);
+            paramNode.setChildren(this.getChildren());
+            paramNode.setTypeQualifiedName(this.getTypeQualifiedName());
+            paramNode.setGenericity(this.isGenericity);
+            paramNode.setGenericityList(this.getGenericityList());
+            paramNode.setRequired(this.isRequired);
+            paramNode.setJson(this.isJson);
+            paramNode.setTypeShortName(this.getTypeShortName());
+            paramNode.setDesc(this.getDesc());
+            paramNode.setName(this.getName());
+        }
+        return paramNode;
+    }
 }
