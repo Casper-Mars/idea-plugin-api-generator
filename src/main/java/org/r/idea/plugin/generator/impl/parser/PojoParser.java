@@ -118,30 +118,6 @@ public class PojoParser {
         return result;
     }
 
-
-//    private void arrayFilter(ParamNode paramNode) {
-//        String type = paramNode.getTypeQualifiedName();
-//        String newType = Utils.isArrayType(type);
-//        paramNode.setTypeQualifiedName(newType);
-//        paramNode.setArray(newType.length() < type.length());
-//    }
-//
-//    private void genericityFilter(ParamNode paramNode) {
-//        String type = paramNode.getTypeQualifiedName();
-//        int left = type.indexOf('<');
-//        int right = type.lastIndexOf('>');
-//        if (left - right != 0) {
-//            String substring = type.substring(left + 1, right);
-//            String[] split = substring.split(Constants.SPLITOR);
-//            paramNode.setTypeQualifiedName(type.substring(0, left));
-//            paramNode.setGenericityList(new ArrayList<>(Arrays.asList(split)));
-//            paramNode.setGenericity(true);
-//        } else {
-//            paramNode.setGenericity(false);
-//            paramNode.setGenericityList(new ArrayList<>());
-//        }
-//    }
-
     private List<Node> getChildrenField(PsiClass target, List<String> paramterTypeList) throws ClassNotFoundException {
         List<Node> children = new ArrayList<>();
         PsiField[] fields = target.getFields();

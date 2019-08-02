@@ -5,6 +5,7 @@ import org.r.idea.plugin.generator.core.nodes.Node;
 import org.r.idea.plugin.generator.impl.Constants;
 import org.r.idea.plugin.generator.impl.Utils;
 import org.r.idea.plugin.generator.impl.nodes.ParamNode;
+import org.r.idea.plugin.generator.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +18,11 @@ public class ObjectParser {
 
         arrayFilter(paramNode);
         genericityFilter(paramNode);
+        entityFilter(paramNode);
+        boolean entity = paramNode.isEntity();
+        if (!entity) {
+            return;
+        }
 
         PojoParser pojoParser = new PojoParser();
         ParamNode node = pojoParser.parse(paramNode.getTypeQualifiedName());
@@ -31,6 +37,7 @@ public class ObjectParser {
         List<Node> targetList = new ArrayList<>();
         List<String> typeArgList = clazz.getGenericityList();
         List<String> realArgList = object.getGenericityList();
+        if (CollectionUtils.isEmpty(children)) return targetList;
         for (Node node : children) {
             ParamNode paramNode = ((ParamNode) node).clone();
             int i = -1;
@@ -78,5 +85,8 @@ public class ObjectParser {
         }
     }
 
+    private static void entityFilter(ParamNode paramNode) {
+        paramNode.setEntity(!Utils.isBaseClass(paramNode.getTypeQualifiedName()));
+    }
 
 }
