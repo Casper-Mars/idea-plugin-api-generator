@@ -10,6 +10,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.javadoc.PsiDocToken;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
+import org.r.idea.plugin.generator.impl.nodes.ParamNode;
+import org.r.idea.plugin.generator.utils.CollectionUtils;
 
 /**
  * @ClassName Utils
@@ -47,8 +49,29 @@ public class Utils {
         return qualifiedName;
     }
 
+    public static String getType(ParamNode node) {
+        if (node == null) return "";
+        StringBuilder sb = new StringBuilder();
+        String typeShortName = node.getTypeShortName();
 
-
+        sb.append(typeShortName);
+        if (node.isGenericity()) {
+            sb.append('<');
+            if (CollectionUtils.isNotEmpty(node.getGenericityList())) {
+                for (int i = 0; i < node.getGenericityList().size(); i++) {
+                    sb.append(node.getGenericityList().get(i).getTypeShortName());
+                    if (i < node.getGenericityList().size() - 1) {
+                        sb.append(',');
+                    }
+                }
+            }
+            sb.append('>');
+        }
+        if (node.isArray()) {
+            sb.append("[]");
+        }
+        return sb.toString();
+    }
 
 
     /**

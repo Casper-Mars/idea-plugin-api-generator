@@ -11,6 +11,7 @@ import org.r.idea.plugin.generator.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @ClassName PojoParser
@@ -46,7 +47,7 @@ public class PojoParser {
         paramNode.setEntity(true);
         paramNode.setTypeQualifiedName(qualifiedName);
         /*获取泛型参数*/
-        List<String> typeParamList = getTypeParamList(target);
+        List<ParamNode> typeParamList = getTypeParamList(target);
         if (CollectionUtils.isNotEmpty(typeParamList)) {
             paramNode.setGenericityList(typeParamList);
             paramNode.setGenericity(true);
@@ -57,7 +58,7 @@ public class PojoParser {
 
         PsiClass tmp = target;
         List<Node> children = new ArrayList<>();
-        List<String> genericityList = paramNode.getGenericityList();
+        List<ParamNode> genericityList = paramNode.getGenericityList();
         while (tmp.getSuperClass() != null) {
             List<Node> tmpList = getChildrenField(tmp, genericityList);
             if (CollectionUtils.isEmpty(tmpList)) {
@@ -72,21 +73,23 @@ public class PojoParser {
     }
 
 
-    private static List<String> getTypeParamList(PsiClass target) {
+    private static List<ParamNode> getTypeParamList(PsiClass target) {
         PsiTypeParameter[] typeParameters = target.getTypeParameters();
-        List<String> result = new ArrayList<>();
+        List<ParamNode> result = new ArrayList<>();
         if (typeParameters.length == 0 || typeParameters[0] == null) {
             return result;
         }
         for (PsiTypeParameter parameter : typeParameters) {
-            result.add(parameter.getText());
+            ParamNode paramNode = new ParamNode();
+            paramNode.setTypeQualifiedName(parameter.getText());
+            result.add(paramNode);
         }
         return result;
     }
 
-    private static List<String> getSuperRealTypeParamList(PsiClass target) {
+    private static List<ParamNode> getSuperRealTypeParamList(PsiClass target) {
 
-        List<String> result = new ArrayList<>();
+        List<ParamNode> result = new ArrayList<>();
         PsiClassType[] extendsListTypes = target.getExtendsListTypes();
 
         if (extendsListTypes.length == 0 || extendsListTypes[0] == null) {
@@ -98,24 +101,32 @@ public class PojoParser {
                 continue;
             }
             for (PsiType parameter : parameters) {
-                result.add(parameter.getCanonicalText());
+                ParamNode paramNode = new ParamNode();
+                paramNode.setTypeQualifiedName(parameter.getCanonicalText());
+                try {
+                    ObjectParser.decorate(paramNode, null);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                result.add(paramNode);
             }
         }
         return result;
     }
 
-    private static List<Node> getChildrenField(PsiClass target, List<String> paramterTypeList) throws ClassNotFoundException {
+    private static List<Node> getChildrenField(PsiClass target, List<ParamNode> paramterTypeList) throws ClassNotFoundException {
         List<Node> children = new ArrayList<>();
         PsiField[] fields = target.getFields();
-        List<String> typeParamList = getTypeParamList(target);
+        List<ParamNode> typeParamList = getTypeParamList(target);
+        List<String> typeParamStrList = typeParamList.stream().map(ParamNode::getTypeQualifiedName).collect(Collectors.toList());
         for (PsiField field : fields) {
             String type = field.getType().getCanonicalText();
             ParamNode child = new ParamNode();
             child.setTypeQualifiedName(type);
-            ObjectParser.decorate(child, typeParamList);
+            ObjectParser.decorate(child, typeParamStrList);
             int i = -1;
-            if ((i = typeParamList.indexOf(child.getTypeQualifiedName())) != -1) {
-                child.setTypeQualifiedName(paramterTypeList.get(i));
+            if ((i = typeParamStrList.indexOf(child.getTypeQualifiedName())) != -1) {
+                child.setTypeQualifiedName(Utils.getType(paramterTypeList.get(i)));
             }
             child.setName(field.getName());
             if (field.getDocComment() == null) {

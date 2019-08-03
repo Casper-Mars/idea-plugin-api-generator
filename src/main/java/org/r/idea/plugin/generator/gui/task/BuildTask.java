@@ -70,11 +70,12 @@ public class BuildTask extends Task.Backgroundable {
         ProcessorNode<Context> processorNode = new ConfigProcessorNode();
         processorNode
                 .addNext(new SearchProcessorNode())
-                .addNext(new ParseProcessorNode());
-//                .addNext(new BuildProcessorNode())
-//                .addNext(new SaveFileProcessorNode())
-//                .addNext(new JarProcessorNode())
-//                .addNext(new UploadProcessorNode());
+                .addNext(new ParseProcessorNode())
+                .addNext(new BuildProcessorNode())
+                .addNext(new SaveFileProcessorNode())
+                .addNext(new JarProcessorNode())
+                .addNext(new UploadProcessorNode())
+        ;
 
         try {
             processorNode.doProcess(context);

@@ -10,6 +10,7 @@ import org.r.idea.plugin.generator.utils.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ObjectParser {
 
@@ -37,22 +38,24 @@ public class ObjectParser {
     private static List<Node> getChildren(ParamNode clazz, ParamNode object) {
         List<Node> children = clazz.getChildren();
         List<Node> targetList = new ArrayList<>();
-        List<String> typeArgList = clazz.getGenericityList();
-        List<String> realArgList = object.getGenericityList();
+        List<ParamNode> typeArgList = clazz.getGenericityList();
+        List<String> typeArgStrList = typeArgList.stream().map(ParamNode::getTypeQualifiedName).collect(Collectors.toList());
+        List<ParamNode> realArgList = object.getGenericityList();
+        boolean hasRealArg = CollectionUtils.isNotEmpty(realArgList);
         if (CollectionUtils.isEmpty(children)) return targetList;
         for (Node node : children) {
             ParamNode paramNode = ((ParamNode) node).clone();
             int i = -1;
-            if ((i = typeArgList.indexOf(paramNode.getTypeQualifiedName())) != -1) {
-                paramNode.setTypeQualifiedName(realArgList.get(i));
+            if (hasRealArg && (i = typeArgStrList.indexOf(paramNode.getTypeQualifiedName())) != -1) {
+                paramNode.setTypeQualifiedName(Utils.getType(realArgList.get(i)));
             }
             boolean genericity = paramNode.isGenericity();
             if (genericity) {
                 /*形参*/
-                List<String> childParamList = paramNode.getGenericityList();
-                List<String> realParamList = new ArrayList<>();
-                for (String s : childParamList) {
-                    if ((i = typeArgList.indexOf(s)) != -1) {
+                List<ParamNode> childParamList = paramNode.getGenericityList();
+                List<ParamNode> realParamList = new ArrayList<>();
+                for (ParamNode s : childParamList) {
+                    if (hasRealArg && (i = typeArgList.indexOf(s)) != -1) {
                         realParamList.add(realArgList.get(i));
                     }
                 }
@@ -79,7 +82,20 @@ public class ObjectParser {
             String substring = type.substring(left + 1, right);
             String[] split = substring.split(Constants.SPLITOR);
             paramNode.setTypeQualifiedName(type.substring(0, left));
-            paramNode.setGenericityList(new ArrayList<>(Arrays.asList(split)));
+            List<String> stringArrayList = new ArrayList<>(Arrays.asList(split));
+            List<ParamNode> target = new ArrayList<>();
+            for (String s : stringArrayList) {
+                ParamNode parse;
+                try {
+                    parse = PojoParser.parse(s);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                    parse = new ParamNode();
+                    parse.setTypeQualifiedName(s);
+                }
+                target.add(parse);
+            }
+            paramNode.setGenericityList(target);
             paramNode.setGenericity(true);
         } else {
             paramNode.setGenericity(false);

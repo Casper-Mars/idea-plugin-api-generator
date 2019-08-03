@@ -38,8 +38,12 @@ public class BuildProcessorNode extends AbstractProcessorNode<Context> {
             return false;
         }
 
+        List<Node> entityNode = context.getEntityNode();
+
+
         DocBuilder docBuilder = new DocBuilderImpl();
         List<FileBO> fileBOS = docBuilder.buildDoc(interfaceNode);
+        fileBOS.addAll(docBuilder.buildDoc(entityNode));
         context.setFileBOS(fileBOS);
         context.updateProgress(0.1f);
 

@@ -25,7 +25,7 @@ public class ParamNode extends Node {
     /**
      * 当参数为泛型时的元素名
      */
-    private List<String> genericityList;
+    private List<ParamNode> genericityList;
 
     /**
      * 是否实体
@@ -115,11 +115,11 @@ public class ParamNode extends Node {
         this.typeQualifiedName = typeQualifiedName;
     }
 
-    public List<String> getGenericityList() {
+    public List<ParamNode> getGenericityList() {
         return genericityList;
     }
 
-    public void setGenericityList(List<String> genericityList) {
+    public void setGenericityList(List<ParamNode> genericityList) {
         this.genericityList = genericityList;
     }
 

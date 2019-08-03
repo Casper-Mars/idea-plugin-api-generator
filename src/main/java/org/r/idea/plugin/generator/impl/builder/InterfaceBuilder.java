@@ -1,9 +1,11 @@
 package org.r.idea.plugin.generator.impl.builder;
 
 import org.r.idea.plugin.generator.core.nodes.Node;
+import org.r.idea.plugin.generator.impl.Utils;
 import org.r.idea.plugin.generator.impl.nodes.InterfaceNode;
 import org.r.idea.plugin.generator.impl.nodes.MethodNode;
 import org.r.idea.plugin.generator.impl.nodes.ParamNode;
+import org.r.idea.plugin.generator.utils.CollectionUtils;
 import org.r.idea.plugin.generator.utils.StringUtils;
 
 /**
@@ -45,7 +47,7 @@ public class InterfaceBuilder {
         /*处理返回值*/
         ParamNode responed = (ParamNode) node.getResponed();
         methodTemplate = methodTemplate
-                .replace("${RESPONSE_NAME}", responed.getTypeShortName() + (responed.isArray() ? "[]" : ""));
+                .replace("${RESPONSE}", Utils.getType(responed));
         /*处理参数：query参数和body参数*/
         StringBuilder body = new StringBuilder();
         StringBuilder query = new StringBuilder();
@@ -75,7 +77,7 @@ public class InterfaceBuilder {
     private String getRequestBody(ParamNode node) {
 
         String name = node.getName();
-        String type = node.isArray() ? node.getTypeShortName() + "[]" : node.getTypeShortName();
+        String type = Utils.getType(node);
         if (node.isJson()) {
             return String.format("@RequestBody %s %s", type, name);
         } else {
@@ -103,5 +105,6 @@ public class InterfaceBuilder {
                     node.isArray() ? node.getTypeShortName() + "[]" : node.getTypeShortName());
         }
     }
+
 
 }

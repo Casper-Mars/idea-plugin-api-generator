@@ -7,6 +7,7 @@ import com.intellij.psi.javadoc.PsiDocToken;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.nodes.Node;
 import org.r.idea.plugin.generator.impl.Constants;
+import org.r.idea.plugin.generator.impl.nodes.ParamNode;
 import org.r.idea.plugin.generator.utils.StringUtils;
 
 /**
@@ -21,9 +22,10 @@ public class ResponeParser {
 
         /*获取返回类型，如果注释有指定类型，则优先获取注释的，否则直接获取返回类型*/
         String responeType = getResponeType(method);
-        PojoParser pojoParser = new PojoParser();
-
-        return pojoParser.parse(responeType);
+        ParamNode paramNode = new ParamNode();
+        paramNode.setTypeQualifiedName(responeType);
+        ObjectParser.decorate(paramNode, null);
+        return paramNode;
     }
 
     private String getResponeType(PsiMethod method) {
