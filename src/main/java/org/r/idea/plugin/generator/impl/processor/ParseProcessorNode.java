@@ -8,11 +8,13 @@ import org.r.idea.plugin.generator.core.nodes.Node;
 import org.r.idea.plugin.generator.core.parser.Parser;
 import org.r.idea.plugin.generator.core.processor.AbstractProcessorNode;
 import org.r.idea.plugin.generator.core.processor.ProcessorNode;
+import org.r.idea.plugin.generator.impl.parser.EntityContainer;
 import org.r.idea.plugin.generator.impl.parser.InterfaceParser;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author Casper
@@ -58,6 +60,7 @@ public class ParseProcessorNode extends AbstractProcessorNode<Context> {
             throw new RuntimeException(sb.toString());
         }
         context.setInterfaceNode(interfaceNode);
+        context.setEntityNode(EntityContainer.getAllValues().stream().map(t -> (Node) t).collect(Collectors.toList()));
         return true;
     }
 

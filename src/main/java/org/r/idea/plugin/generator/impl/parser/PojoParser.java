@@ -3,23 +3,14 @@ package org.r.idea.plugin.generator.impl.parser;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.*;
-import com.intellij.psi.search.GlobalSearchScope;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-
-import jdk.nashorn.internal.runtime.linker.LinkerCallSite;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
-import org.r.idea.plugin.generator.core.indicators.GenericityIndicator;
-import org.r.idea.plugin.generator.core.indicators.InterfaceIndicator;
-import org.r.idea.plugin.generator.impl.Constants;
-import org.r.idea.plugin.generator.impl.Utils;
-import org.r.idea.plugin.generator.core.indicators.IndicatorFactory;
 import org.r.idea.plugin.generator.core.nodes.Node;
+import org.r.idea.plugin.generator.impl.Utils;
 import org.r.idea.plugin.generator.impl.nodes.ParamNode;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @ClassName PojoParser
@@ -29,8 +20,7 @@ import org.r.idea.plugin.generator.utils.CollectionUtils;
 public class PojoParser {
 
 
-    public ParamNode parse(String qualifiedName) throws ClassNotFoundException {
-
+    public static ParamNode parse(String qualifiedName) throws ClassNotFoundException {
 
         ParamNode paramNode;
         /*先判断是否为基本类型*/
@@ -40,17 +30,13 @@ public class PojoParser {
             paramNode.setEntity(false);
             paramNode.setGenericity(false);
         } else {
-//            paramNode = EntityContainer.getEntity(qualifiedName);
-//            if (paramNode == null) {
-//                paramNode = parseEntity(qualifiedName);
-//                EntityContainer.addEntity(qualifiedName, paramNode);
-//            }
             paramNode = parseEntity(qualifiedName);
+            EntityContainer.addEntity(qualifiedName, paramNode);
         }
         return paramNode;
     }
 
-    private ParamNode parseEntity(String qualifiedName) throws ClassNotFoundException {
+    private static ParamNode parseEntity(String qualifiedName) throws ClassNotFoundException {
 
         /*获取实体类*/
         Project defaultProject = ProjectManager.getInstance().getOpenProjects()[0];
@@ -86,7 +72,7 @@ public class PojoParser {
     }
 
 
-    private List<String> getTypeParamList(PsiClass target) {
+    private static List<String> getTypeParamList(PsiClass target) {
         PsiTypeParameter[] typeParameters = target.getTypeParameters();
         List<String> result = new ArrayList<>();
         if (typeParameters.length == 0 || typeParameters[0] == null) {
@@ -98,7 +84,7 @@ public class PojoParser {
         return result;
     }
 
-    private List<String> getSuperRealTypeParamList(PsiClass target) {
+    private static List<String> getSuperRealTypeParamList(PsiClass target) {
 
         List<String> result = new ArrayList<>();
         PsiClassType[] extendsListTypes = target.getExtendsListTypes();
@@ -118,7 +104,7 @@ public class PojoParser {
         return result;
     }
 
-    private List<Node> getChildrenField(PsiClass target, List<String> paramterTypeList) throws ClassNotFoundException {
+    private static List<Node> getChildrenField(PsiClass target, List<String> paramterTypeList) throws ClassNotFoundException {
         List<Node> children = new ArrayList<>();
         PsiField[] fields = target.getFields();
         List<String> typeParamList = getTypeParamList(target);
@@ -126,19 +112,10 @@ public class PojoParser {
             String type = field.getType().getCanonicalText();
             ParamNode child = new ParamNode();
             child.setTypeQualifiedName(type);
-            ObjectParser.decorate(child);
+            ObjectParser.decorate(child, typeParamList);
             int i = -1;
             if ((i = typeParamList.indexOf(child.getTypeQualifiedName())) != -1) {
                 child.setTypeQualifiedName(paramterTypeList.get(i));
-            }
-            try {
-                ParamNode tmp = parse(child.getTypeQualifiedName());
-                child.setEntity(tmp.isEntity());
-                child.setChildren(tmp.getChildren());
-            } catch (ClassNotFoundException e) {
-                if (CollectionUtils.isNotEmpty(paramterTypeList) && !paramterTypeList.contains(child.getTypeQualifiedName())) {
-                    throw e;
-                }
             }
             child.setName(field.getName());
             if (field.getDocComment() == null) {

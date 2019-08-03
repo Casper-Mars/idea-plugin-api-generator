@@ -49,6 +49,11 @@ public class Context {
     private List<Node> interfaceNode;
 
     /**
+     * 实体类
+     */
+    private List<Node> entityNode;
+
+    /**
      * 产生的源文件的路径
      */
     private String srcDir;
@@ -160,5 +165,11 @@ public class Context {
         }
     }
 
+    public List<Node> getEntityNode() {
+        return entityNode;
+    }
 
+    public void setEntityNode(List<Node> entityNode) {
+        this.entityNode = entityNode;
+    }
 }

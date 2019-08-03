@@ -14,7 +14,7 @@ import java.util.List;
 public class ObjectParser {
 
 
-    public static void decorate(ParamNode paramNode) throws ClassNotFoundException {
+    public static void decorate(ParamNode paramNode, List<String> typeParamList) throws ClassNotFoundException {
 
         arrayFilter(paramNode);
         genericityFilter(paramNode);
@@ -23,9 +23,11 @@ public class ObjectParser {
         if (!entity) {
             return;
         }
+        if (CollectionUtils.isNotEmpty(typeParamList) && typeParamList.contains(paramNode.getTypeQualifiedName())) {
+            return;
+        }
 
-        PojoParser pojoParser = new PojoParser();
-        ParamNode node = pojoParser.parse(paramNode.getTypeQualifiedName());
+        ParamNode node = PojoParser.parse(paramNode.getTypeQualifiedName());
 
         List<Node> children = getChildren(node, paramNode);
         paramNode.setChildren(children);

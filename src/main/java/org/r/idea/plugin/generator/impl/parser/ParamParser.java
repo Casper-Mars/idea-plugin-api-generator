@@ -1,19 +1,22 @@
 package org.r.idea.plugin.generator.impl.parser;
 
-import com.intellij.psi.*;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiParameter;
 import com.intellij.psi.impl.source.javadoc.PsiDocParamRef;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
 import com.intellij.psi.javadoc.PsiDocToken;
-import org.apache.batik.css.engine.value.svg12.ICCNamedColor;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.nodes.Node;
-import org.r.idea.plugin.generator.impl.Constants;
 import org.r.idea.plugin.generator.impl.Utils;
 import org.r.idea.plugin.generator.impl.nodes.ParamNode;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName ParamParser
@@ -22,8 +25,6 @@ import java.util.*;
  **/
 public class ParamParser {
 
-
-    private PojoParser pojoParser = new PojoParser();
 
     public List<Node> parse(PsiMethod method) throws ClassNotFoundException {
         Map<String, String> param = getParam(method);
@@ -45,13 +46,15 @@ public class ParamParser {
                 paramNodeList.add(paramNode);
             }
             paramNode.setTypeQualifiedName(getType(parameter));
-            /*修饰参数节点*/
-            ObjectParser.decorate(paramNode);
+            paramNode.setJson(
+                    Utils.isContainAnnotation("org.springframework.web.bind.annotation.RequestBody", parameter.getAnnotations()));
+            if (!paramNode.isJson()) {
+                /*修饰参数节点*/
+                ObjectParser.decorate(paramNode, null);
+            }
             /*是否必传的*/
             requeryFilter(paramNode);
             /*是否为json实体*/
-            paramNode.setJson(
-                    Utils.isContainAnnotation("org.springframework.web.bind.annotation.RequestBody", parameter.getAnnotations()));
             paramNode.setName(parameter.getName());
         }
         return paramNodeList;
