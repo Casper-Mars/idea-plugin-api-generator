@@ -59,7 +59,7 @@ public class Utils {
             sb.append('<');
             if (CollectionUtils.isNotEmpty(node.getGenericityList())) {
                 for (int i = 0; i < node.getGenericityList().size(); i++) {
-                    sb.append(node.getGenericityList().get(i).getTypeShortName());
+                    sb.append(getType(node.getGenericityList().get(i)));
                     if (i < node.getGenericityList().size() - 1) {
                         sb.append(',');
                     }

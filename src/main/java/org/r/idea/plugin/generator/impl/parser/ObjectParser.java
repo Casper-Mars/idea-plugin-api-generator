@@ -87,7 +87,9 @@ public class ObjectParser {
             for (String s : stringArrayList) {
                 ParamNode parse;
                 try {
-                    parse = PojoParser.parse(s);
+                    parse = new ParamNode();
+                    parse.setTypeQualifiedName(s);
+                    ObjectParser.decorate(parse, null);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                     parse = new ParamNode();
