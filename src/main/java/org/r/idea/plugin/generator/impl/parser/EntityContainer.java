@@ -1,6 +1,5 @@
 package org.r.idea.plugin.generator.impl.parser;
 
-import com.intellij.openapi.roots.ui.configuration.artifacts.sourceItems.actions.PutIntoDefaultLocationActionBase;
 import org.r.idea.plugin.generator.impl.nodes.ParamNode;
 
 import java.util.ArrayList;
@@ -37,5 +36,8 @@ public class EntityContainer {
         map.put(type, target);
     }
 
+    public synchronized static void erase() {
+        map.clear();
+    }
 
 }

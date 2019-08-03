@@ -39,12 +39,14 @@ public class InterfaceParser implements Parser {
         MethodParser methodParser = new MethodParser();
         try {
             for (PsiMethod method : target.getMethods()) {
+                System.out.println("----" + method.getName());
                 MethodNode methodNode = methodParser.parse(method);
                 if (methodNode == null) {
                     continue;
                 }
                 methodNode.setUrl(interfaceNode.getBaseUrl() + methodNode.getUrl());
                 methods.add(methodNode);
+                System.out.println("----" + method.getName() + "-----finish");
             }
         } catch (ClassNotFoundException e) {
             e.setMsg(target.getQualifiedName() + "-" + e.getMsg());
@@ -60,7 +62,7 @@ public class InterfaceParser implements Parser {
         PsiAnnotation[] annotations = target.getAnnotations();
 
         PsiAnnotation req = Utils
-            .findAnnotationByName("org.springframework.web.bind.annotation.RequestMapping", annotations);
+                .findAnnotationByName("org.springframework.web.bind.annotation.RequestMapping", annotations);
         if (req == null || CollectionUtils.isEmpty(req.getAttributes())) {
             return "";
         }

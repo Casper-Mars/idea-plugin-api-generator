@@ -31,8 +31,11 @@ public class PojoParser {
             paramNode.setEntity(false);
             paramNode.setGenericity(false);
         } else {
-            paramNode = parseEntity(qualifiedName);
-            EntityContainer.addEntity(qualifiedName, paramNode);
+            paramNode = EntityContainer.getEntity(qualifiedName);
+            if (paramNode == null) {
+                paramNode = parseEntity(qualifiedName);
+                EntityContainer.addEntity(qualifiedName, paramNode);
+            }
         }
         return paramNode;
     }
@@ -119,13 +122,14 @@ public class PojoParser {
         PsiField[] fields = target.getFields();
         List<ParamNode> typeParamList = getTypeParamList(target);
         List<String> typeParamStrList = typeParamList.stream().map(ParamNode::getTypeQualifiedName).collect(Collectors.toList());
+        boolean hasParamType = CollectionUtils.isNotEmpty(paramterTypeList);
         for (PsiField field : fields) {
             String type = field.getType().getCanonicalText();
             ParamNode child = new ParamNode();
             child.setTypeQualifiedName(type);
             ObjectParser.decorate(child, typeParamStrList);
             int i = -1;
-            if ((i = typeParamStrList.indexOf(child.getTypeQualifiedName())) != -1) {
+            if (hasParamType && (i = typeParamStrList.indexOf(child.getTypeQualifiedName())) != -1) {
                 child.setTypeQualifiedName(Utils.getType(paramterTypeList.get(i)));
             }
             child.setName(field.getName());

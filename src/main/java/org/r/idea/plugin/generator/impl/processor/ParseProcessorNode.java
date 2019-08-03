@@ -8,6 +8,7 @@ import org.r.idea.plugin.generator.core.nodes.Node;
 import org.r.idea.plugin.generator.core.parser.Parser;
 import org.r.idea.plugin.generator.core.processor.AbstractProcessorNode;
 import org.r.idea.plugin.generator.core.processor.ProcessorNode;
+import org.r.idea.plugin.generator.impl.nodes.ParamNode;
 import org.r.idea.plugin.generator.impl.parser.EntityContainer;
 import org.r.idea.plugin.generator.impl.parser.InterfaceParser;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
@@ -48,6 +49,7 @@ public class ParseProcessorNode extends AbstractProcessorNode<Context> {
             float total = (1.0f / interfaceClass.size()) * 0.4f;
             for (PsiClass target : interfaceClass) {
                 try {
+                    System.out.println(target.getQualifiedName());
                     Node parse = parser.parse(target);
                     interfaceNode.add(parse);
                     context.updateProgress(total);
@@ -60,7 +62,12 @@ public class ParseProcessorNode extends AbstractProcessorNode<Context> {
             throw new RuntimeException(sb.toString());
         }
         context.setInterfaceNode(interfaceNode);
-        context.setEntityNode(EntityContainer.getAllValues().stream().map(t -> (Node) t).collect(Collectors.toList()));
+        /*拷贝实体容器中的实体*/
+        List<ParamNode> allValues = EntityContainer.getAllValues();
+        List<Node> target = new ArrayList<>();
+        allValues.forEach(t -> target.add(t.clone()));
+        context.setEntityNode(target);
+//        context.setEntityNode(EntityContainer.getAllValues().stream().map(t -> (Node) t).collect(Collectors.toList()));
         return true;
     }
 

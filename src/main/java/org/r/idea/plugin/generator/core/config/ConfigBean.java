@@ -34,7 +34,7 @@ public class ConfigBean {
      */
     private String[] baseClass = {"String", "Long", "int", "long", "char", "Integer", "double", "Double",
             "BigDecimal", "LocalDateTime", "BigDecimal", "boolean", "Boolean", "BindingResult", "Date", "byte",
-            "Byte", "List", "Map", "Collection"
+            "Byte","Object","MultipartFile"
     };
 
 
