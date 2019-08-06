@@ -6,6 +6,7 @@ import org.r.idea.plugin.generator.impl.Constants;
 import org.r.idea.plugin.generator.impl.Utils;
 import org.r.idea.plugin.generator.impl.nodes.ParamNode;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
+import org.r.idea.plugin.generator.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +32,18 @@ public class ObjectParser {
         }
         initChildren(paramNode, prototype);
 
+    }
+
+
+    private static void initSuperClass(ParamNode paramNode, ParamNode prototype) throws ClassNotFoundException {
+        String prototypeSuperClass = prototype.getSuperClass();
+        if (StringUtils.isEmpty(prototypeSuperClass)) {
+            return;
+        }
+        ParamNode superClass = new ParamNode();
+        superClass.setTypeQualifiedName(prototype.getSuperClass());
+        decorate(superClass);
+        paramNode.getChildren().addAll(superClass.getChildren());
     }
 
 
