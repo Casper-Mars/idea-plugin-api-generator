@@ -50,26 +50,12 @@ public class DocBuilderImpl implements DocBuilder {
     @Override
     public List<FileBO> buildDoc(List<Node> nodes) {
         List<FileBO> result = new ArrayList<>();
-        List<ParamNode> entityList = new ArrayList<>();
         for (Node node : nodes) {
             FileBO fileBO = buildDoc(node);
             if (fileBO != null) {
                 result.add(fileBO);
-//                List<ParamNode> allEntity = getAllEntity((InterfaceNode) node);
-//                if (CollectionUtils.isNotEmpty(allEntity)) {
-//                    entityList.addAll(allEntity);
-//                }
             }
         }
-//        /*过滤重复的实体*/
-//        Map<String, ParamNode> index = entityList.stream()
-//            .collect(Collectors.toMap(ParamNode::getTypeQualifiedName, t -> t, (k1, k2) -> k1));
-//        for (ParamNode node : index.values()) {
-//            FileBO fileBO = buildDoc(node);
-//            if (fileBO != null) {
-//                result.add(fileBO);
-//            }
-//        }
         return result;
     }
 
