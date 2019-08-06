@@ -31,7 +31,7 @@ public class ObjectParser {
             EntityContainer.addEntity(paramNode.getTypeQualifiedName(), prototype);
         }
         initChildren(paramNode, prototype);
-
+        initSuperClass(paramNode, prototype);
     }
 
 
@@ -43,16 +43,18 @@ public class ObjectParser {
         ParamNode superClass = new ParamNode();
         superClass.setTypeQualifiedName(prototype.getSuperClass());
         decorate(superClass);
-        paramNode.getChildren().addAll(superClass.getChildren());
+        if (CollectionUtils.isNotEmpty(superClass.getChildren())) {
+            paramNode.getChildren().addAll(superClass.getChildren());
+        }
     }
 
 
-    private static List<Node> initChildren(ParamNode paramNode, ParamNode prototype) {
+    private static void initChildren(ParamNode paramNode, ParamNode prototype) {
         List<Node> children = prototype.getChildren();
         List<Node> targetList = new ArrayList<>();
 
         if (CollectionUtils.isEmpty(children)) {
-            return new ArrayList<>();
+            return;
         }
         List<String> paramRealList = paramNode.getGenericityList();
         List<String> paramTypeList = prototype.getGenericityList();
@@ -86,7 +88,6 @@ public class ObjectParser {
             targetList.add(childNode);
         }
         paramNode.setChildren(targetList);
-        return targetList;
     }
 
 

@@ -24,7 +24,7 @@ public class ResponeParser {
         String responeType = getResponeType(method);
         ParamNode paramNode = new ParamNode();
         paramNode.setTypeQualifiedName(responeType);
-        ObjectParser.decorate(paramNode, null);
+        ObjectParser.decorate(paramNode);
         return paramNode;
     }
 

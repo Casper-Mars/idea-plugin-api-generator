@@ -100,32 +100,4 @@ public class PojoParser {
         sb.append('>');
         return sb.toString();
     }
-
-//    private static List<Node> getChildrenField(PsiClass target, List<ParamNode> paramterTypeList) throws ClassNotFoundException {
-//        List<Node> children = new ArrayList<>();
-//        PsiField[] fields = target.getFields();
-//        List<ParamNode> typeParamList = getTypeParamList(target);
-//        List<String> typeParamStrList = typeParamList.stream().map(ParamNode::getTypeQualifiedName).collect(Collectors.toList());
-//        boolean hasParamType = CollectionUtils.isNotEmpty(paramterTypeList);
-//        for (PsiField field : fields) {
-//            String type = field.getType().getCanonicalText();
-//            ParamNode child = new ParamNode();
-//            child.setTypeQualifiedName(type);
-//            ObjectParser.decorate(child, typeParamStrList);
-//            int i = -1;
-//            if (hasParamType && (i = typeParamStrList.indexOf(child.getTypeQualifiedName())) != -1) {
-//                child.setTypeQualifiedName(Utils.getType(paramterTypeList.get(i)));
-//            }
-//            child.setName(field.getName());
-//            if (field.getDocComment() == null) {
-//                child.setDesc("");
-//            } else {
-//                child.setDesc(Utils.getDocCommentDesc(field.getDocComment().getDescriptionElements()));
-//            }
-//            children.add(child);
-//        }
-//        return children;
-//    }
-
-
 }
