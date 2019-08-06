@@ -1,5 +1,7 @@
 package org.r.idea.plugin.generator.core.beans;
 
+import org.jdom2.Document;
+
 /**
  * @ClassName FileBO
  * @Author Casper
@@ -20,7 +22,7 @@ public class FileBO {
     /**
      * 文件内容
      */
-    private String content;
+    private Document content;
 
     public String getName() {
         return name;
@@ -42,11 +44,11 @@ public class FileBO {
         return this.name + "." + this.suffix;
     }
 
-    public String getContent() {
+    public Document getContent() {
         return content;
     }
 
-    public void setContent(String content) {
+    public void setContent(Document content) {
         this.content = content;
     }
 }

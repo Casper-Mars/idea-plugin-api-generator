@@ -12,16 +12,14 @@ import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 
 import com.intellij.psi.impl.source.PsiJavaFileImpl;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jdom2.Document;
+import org.jdom2.output.XMLOutputter;
 import org.r.idea.plugin.generator.core.beans.FileBO;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.indicators.InterfaceIndicator;
@@ -136,14 +134,9 @@ public class FileProbe implements Probe {
 
     @Override
     public void writerFile(String filename, String content) {
-        File file = new File(filename);
-        if (!file.getParentFile().exists()) {
-            if (!file.getParentFile().mkdirs()) {
-                throw new RuntimeException("无法创建目录：" + file.getParentFile().getAbsolutePath());
-            }
-        }
+        File file = getFile(filename);
         try (BufferedWriter writer = new BufferedWriter(
-            new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
+                new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
             writer.write(content);
             writer.flush();
         } catch (IOException e) {
@@ -151,5 +144,32 @@ public class FileProbe implements Probe {
         }
     }
 
+    /**
+     * 写入xml内容，并指定文件名
+     *
+     * @param filename 文件名
+     * @param document xml内容
+     */
+    @Override
+    public void writerFile(String filename, Document document) {
+        File file = getFile(filename);
+        XMLOutputter xmlOutputter = new XMLOutputter();
+        try (OutputStream out = new FileOutputStream(file)) {
+            xmlOutputter.output(document, out);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private File getFile(String filename) {
+        File file = new File(filename);
+        if (!file.getParentFile().exists()) {
+            if (!file.getParentFile().mkdirs()) {
+                throw new RuntimeException("无法创建目录：" + file.getParentFile().getAbsolutePath());
+            }
+        }
+        return file;
+    }
 
 }

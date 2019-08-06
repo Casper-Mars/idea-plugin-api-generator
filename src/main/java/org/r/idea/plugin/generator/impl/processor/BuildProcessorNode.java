@@ -1,5 +1,6 @@
 package org.r.idea.plugin.generator.impl.processor;
 
+import org.jdom2.Document;
 import org.r.idea.plugin.generator.core.beans.FileBO;
 import org.r.idea.plugin.generator.core.builder.DocBuilder;
 import org.r.idea.plugin.generator.core.config.ConfigBean;
@@ -8,6 +9,7 @@ import org.r.idea.plugin.generator.core.processor.AbstractProcessorNode;
 import org.r.idea.plugin.generator.impl.builder.DocBuilderImpl;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,8 +38,14 @@ public class BuildProcessorNode extends AbstractProcessorNode<Context> {
             return false;
         }
         DocBuilder docBuilder = new DocBuilderImpl();
-        List<FileBO> fileBOS = docBuilder.buildDoc(interfaceNode);
-        context.setFileBOS(fileBOS);
+        Document document = docBuilder.buildDoc(interfaceNode);
+        List<FileBO> target = new ArrayList<>();
+        FileBO fileBO = new FileBO();
+        fileBO.setSuffix("xml");
+        fileBO.setContent(document);
+        fileBO.setName("parseInterfaceXml");
+        target.add(fileBO);
+        context.setFileBOS(target);
         context.updateProgress(0.1f);
         return true;
     }
