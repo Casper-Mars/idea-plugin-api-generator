@@ -11,7 +11,6 @@ import org.r.idea.plugin.generator.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @ClassName PojoParser
@@ -21,26 +20,7 @@ import java.util.stream.Collectors;
 public class PojoParser {
 
 
-    public static ParamNode parse(String qualifiedName) throws ClassNotFoundException {
-
-        ParamNode paramNode;
-        /*先判断是否为基本类型*/
-        if (Utils.isBaseClass(qualifiedName)) {
-            paramNode = new ParamNode();
-            paramNode.setTypeQualifiedName(qualifiedName);
-            paramNode.setEntity(false);
-            paramNode.setGenericity(false);
-        } else {
-            paramNode = EntityContainer.getEntity(qualifiedName);
-            if (paramNode == null) {
-                paramNode = parseEntity(qualifiedName);
-                EntityContainer.addEntity(qualifiedName, paramNode);
-            }
-        }
-        return paramNode;
-    }
-
-    private static ParamNode parseEntity(String qualifiedName) throws ClassNotFoundException {
+    public static ParamNode parseEntity(String qualifiedName) throws ClassNotFoundException {
 
         /*获取实体类*/
         Project defaultProject = ProjectManager.getInstance().getOpenProjects()[0];
@@ -50,7 +30,7 @@ public class PojoParser {
         paramNode.setEntity(true);
         paramNode.setTypeQualifiedName(qualifiedName);
         /*获取泛型参数*/
-        List<ParamNode> typeParamList = getTypeParamList(target);
+        List<String> typeParamList = getTypeParamList(target);
         if (CollectionUtils.isNotEmpty(typeParamList)) {
             paramNode.setGenericityList(typeParamList);
             paramNode.setGenericity(true);
@@ -59,89 +39,93 @@ public class PojoParser {
             paramNode.setGenericityList(new ArrayList<>());
         }
 
-        PsiClass tmp = target;
         List<Node> children = new ArrayList<>();
-        List<ParamNode> genericityList = paramNode.getGenericityList();
-        while (tmp.getSuperClass() != null) {
-            List<Node> tmpList = getChildrenField(tmp, genericityList);
-            if (CollectionUtils.isEmpty(tmpList)) {
-                continue;
-            }
-            children.addAll(tmpList);
-            genericityList = getSuperRealTypeParamList(tmp);
-            tmp = tmp.getSuperClass();
-        }
         paramNode.setChildren(children);
+        PsiField[] fields = target.getFields();
+        if (fields.length == 0 || fields[0] == null) {
+            return paramNode;
+        }
+        for (PsiField field : fields) {
+            ParamNode child = new ParamNode();
+            child.setTypeQualifiedName(field.getType().getCanonicalText());
+            child.setName(field.getName());
+            children.add(child);
+        }
+        paramNode.setSuperClass(getSuperClassName(target));
         return paramNode;
     }
 
+    private static String getSuperClassName(PsiClass target) {
+        PsiClass superClass = target.getSuperClass();
+        if (superClass == null) {
+            return "";
+        }
+        String superClassName = superClass.getQualifiedName();
+        String s = getSuperRealTypeParamList(target);
+        return superClassName + s;
+    }
 
-    private static List<ParamNode> getTypeParamList(PsiClass target) {
+    private static List<String> getTypeParamList(PsiClass target) {
         PsiTypeParameter[] typeParameters = target.getTypeParameters();
-        List<ParamNode> result = new ArrayList<>();
+        List<String> result = new ArrayList<>();
         if (typeParameters.length == 0 || typeParameters[0] == null) {
             return result;
         }
         for (PsiTypeParameter parameter : typeParameters) {
-            ParamNode paramNode = new ParamNode();
-            paramNode.setTypeQualifiedName(parameter.getText());
-            result.add(paramNode);
+            result.add(parameter.getText());
         }
         return result;
     }
 
-    private static List<ParamNode> getSuperRealTypeParamList(PsiClass target) {
+    private static String getSuperRealTypeParamList(PsiClass target) {
 
-        List<ParamNode> result = new ArrayList<>();
         PsiClassType[] extendsListTypes = target.getExtendsListTypes();
 
         if (extendsListTypes.length == 0 || extendsListTypes[0] == null) {
-            return result;
+            return "";
         }
-        for (PsiClassType type : extendsListTypes) {
-            PsiType[] parameters = type.getParameters();
-            if (parameters.length == 0 || parameters[0] == null) {
-                continue;
-            }
-            for (PsiType parameter : parameters) {
-                ParamNode paramNode = new ParamNode();
-                paramNode.setTypeQualifiedName(parameter.getCanonicalText());
-                try {
-                    ObjectParser.decorate(paramNode, null);
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-                result.add(paramNode);
+        PsiClassType extendsListType = extendsListTypes[0];
+        PsiType[] typeParameters = extendsListType.getParameters();
+        if (typeParameters.length == 0 || typeParameters[0] == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append('<');
+        for (int i = 0; i < typeParameters.length; i++) {
+            sb.append(typeParameters[i].getCanonicalText());
+            if (i < typeParameters.length - 1) {
+                sb.append(',');
             }
         }
-        return result;
+        sb.append('>');
+        return sb.toString();
     }
 
-    private static List<Node> getChildrenField(PsiClass target, List<ParamNode> paramterTypeList) throws ClassNotFoundException {
-        List<Node> children = new ArrayList<>();
-        PsiField[] fields = target.getFields();
-        List<ParamNode> typeParamList = getTypeParamList(target);
-        List<String> typeParamStrList = typeParamList.stream().map(ParamNode::getTypeQualifiedName).collect(Collectors.toList());
-        boolean hasParamType = CollectionUtils.isNotEmpty(paramterTypeList);
-        for (PsiField field : fields) {
-            String type = field.getType().getCanonicalText();
-            ParamNode child = new ParamNode();
-            child.setTypeQualifiedName(type);
-            ObjectParser.decorate(child, typeParamStrList);
-            int i = -1;
-            if (hasParamType && (i = typeParamStrList.indexOf(child.getTypeQualifiedName())) != -1) {
-                child.setTypeQualifiedName(Utils.getType(paramterTypeList.get(i)));
-            }
-            child.setName(field.getName());
-            if (field.getDocComment() == null) {
-                child.setDesc("");
-            } else {
-                child.setDesc(Utils.getDocCommentDesc(field.getDocComment().getDescriptionElements()));
-            }
-            children.add(child);
-        }
-        return children;
-    }
+//    private static List<Node> getChildrenField(PsiClass target, List<ParamNode> paramterTypeList) throws ClassNotFoundException {
+//        List<Node> children = new ArrayList<>();
+//        PsiField[] fields = target.getFields();
+//        List<ParamNode> typeParamList = getTypeParamList(target);
+//        List<String> typeParamStrList = typeParamList.stream().map(ParamNode::getTypeQualifiedName).collect(Collectors.toList());
+//        boolean hasParamType = CollectionUtils.isNotEmpty(paramterTypeList);
+//        for (PsiField field : fields) {
+//            String type = field.getType().getCanonicalText();
+//            ParamNode child = new ParamNode();
+//            child.setTypeQualifiedName(type);
+//            ObjectParser.decorate(child, typeParamStrList);
+//            int i = -1;
+//            if (hasParamType && (i = typeParamStrList.indexOf(child.getTypeQualifiedName())) != -1) {
+//                child.setTypeQualifiedName(Utils.getType(paramterTypeList.get(i)));
+//            }
+//            child.setName(field.getName());
+//            if (field.getDocComment() == null) {
+//                child.setDesc("");
+//            } else {
+//                child.setDesc(Utils.getDocCommentDesc(field.getDocComment().getDescriptionElements()));
+//            }
+//            children.add(child);
+//        }
+//        return children;
+//    }
 
 
 }

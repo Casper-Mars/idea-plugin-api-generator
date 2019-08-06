@@ -48,8 +48,8 @@ public class ParamParser {
             paramNode.setTypeQualifiedName(getType(parameter));
             paramNode.setJson(
                     Utils.isContainAnnotation("org.springframework.web.bind.annotation.RequestBody", parameter.getAnnotations()));
-            /*修饰参数节点*/
-            ObjectParser.decorate(paramNode, null);
+            /*修饰参数节点,添加参数的属性信息*/
+            ObjectParser.decorate(paramNode);
             /*是否必传的*/
             requeryFilter(paramNode);
             /*是否为json实体*/

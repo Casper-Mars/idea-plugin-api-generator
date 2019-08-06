@@ -2,7 +2,6 @@ package org.r.idea.plugin.generator.impl;
 
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
@@ -59,7 +58,8 @@ public class Utils {
             sb.append('<');
             if (CollectionUtils.isNotEmpty(node.getGenericityList())) {
                 for (int i = 0; i < node.getGenericityList().size(); i++) {
-                    sb.append(getType(node.getGenericityList().get(i)));
+//                    sb.append(getType(node.getGenericityList().get(i)));
+                    sb.append(node.getGenericityList().get(i));
                     if (i < node.getGenericityList().size() - 1) {
                         sb.append(',');
                     }

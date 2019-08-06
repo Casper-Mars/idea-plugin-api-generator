@@ -21,11 +21,15 @@ public class ParamNode extends Node {
      */
     private String typeQualifiedName;
 
-
     /**
      * 当参数为泛型时的元素名
      */
-    private List<ParamNode> genericityList;
+    private List<String> genericityList;
+
+    /**
+     * 父类全称
+     */
+    private String superClass;
 
     /**
      * 是否实体
@@ -48,6 +52,9 @@ public class ParamNode extends Node {
      * 是否必传
      */
     private boolean isRequired;
+
+    public ParamNode() {
+    }
 
 
     public void setRequired(boolean required) {
@@ -115,14 +122,21 @@ public class ParamNode extends Node {
         this.typeQualifiedName = typeQualifiedName;
     }
 
-    public List<ParamNode> getGenericityList() {
+    public List<String> getGenericityList() {
         return genericityList;
     }
 
-    public void setGenericityList(List<ParamNode> genericityList) {
+    public void setGenericityList(List<String> genericityList) {
         this.genericityList = genericityList;
     }
 
+    public String getSuperClass() {
+        return superClass;
+    }
+
+    public void setSuperClass(String superClass) {
+        this.superClass = superClass;
+    }
 
     @Override
     public ParamNode clone() {

@@ -10,12 +10,11 @@ import org.r.idea.plugin.generator.utils.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ObjectParser {
 
 
-    public static void decorate(ParamNode paramNode, List<String> typeParamList) throws ClassNotFoundException {
+    public static void decorate(ParamNode paramNode) throws ClassNotFoundException {
 
         arrayFilter(paramNode);
         genericityFilter(paramNode);
@@ -24,45 +23,56 @@ public class ObjectParser {
         if (!entity) {
             return;
         }
-        if (CollectionUtils.isNotEmpty(typeParamList) && typeParamList.contains(paramNode.getTypeQualifiedName())) {
-            return;
+        /*获取子属性*/
+        ParamNode prototype = EntityContainer.getEntity(paramNode.getTypeQualifiedName());
+        if (prototype == null) {
+            prototype = PojoParser.parseEntity(paramNode.getTypeQualifiedName());
+            EntityContainer.addEntity(paramNode.getTypeQualifiedName(), prototype);
         }
+        initChildren(paramNode, prototype);
 
-        ParamNode node = PojoParser.parse(paramNode.getTypeQualifiedName());
-
-        List<Node> children = getChildren(node, paramNode);
-        paramNode.setChildren(children);
     }
 
 
-    private static List<Node> getChildren(ParamNode clazz, ParamNode object) {
-        List<Node> children = clazz.getChildren();
+    private static List<Node> initChildren(ParamNode paramNode, ParamNode prototype) {
+        List<Node> children = prototype.getChildren();
         List<Node> targetList = new ArrayList<>();
-        List<ParamNode> typeArgList = clazz.getGenericityList();
-        List<String> typeArgStrList = typeArgList.stream().map(ParamNode::getTypeQualifiedName).collect(Collectors.toList());
-        List<ParamNode> realArgList = object.getGenericityList();
-        boolean hasRealArg = CollectionUtils.isNotEmpty(realArgList);
-        if (CollectionUtils.isEmpty(children)) return targetList;
+
+        if (CollectionUtils.isEmpty(children)) {
+            return new ArrayList<>();
+        }
+        List<String> paramRealList = paramNode.getGenericityList();
+        List<String> paramTypeList = prototype.getGenericityList();
+
+        if (CollectionUtils.isNotEmpty(paramTypeList) && CollectionUtils.isEmpty(paramRealList)) {
+            paramTypeList.forEach(t -> paramRealList.add("Object"));
+        }
+
         for (Node node : children) {
-            ParamNode paramNode = ((ParamNode) node).clone();
             int i = -1;
-            if (hasRealArg && (i = typeArgStrList.indexOf(paramNode.getTypeQualifiedName())) != -1) {
-                paramNode.setTypeQualifiedName(Utils.getType(realArgList.get(i)));
-            }
-            boolean genericity = paramNode.isGenericity();
-            if (genericity) {
-                /*形参*/
-                List<ParamNode> childParamList = paramNode.getGenericityList();
-                List<ParamNode> realParamList = new ArrayList<>();
-                for (ParamNode s : childParamList) {
-                    if (hasRealArg && (i = typeArgList.indexOf(s)) != -1) {
-                        realParamList.add(realArgList.get(i));
+            ParamNode childNode = ((ParamNode) node).clone();
+            arrayFilter(childNode);
+            boolean array = childNode.isArray();
+            genericityFilter(childNode);
+            if (childNode.isGenericity()) {
+                List<String> tmpList = childNode.getGenericityList();
+                for (int j = 0; j < tmpList.size(); j++) {
+                    if ((i = paramTypeList.indexOf(tmpList.get(j))) != -1) {
+                        tmpList.set(j, paramRealList.get(i));
                     }
                 }
-                paramNode.setGenericityList(realParamList);
+            } else if ((i = paramTypeList.indexOf(childNode.getTypeQualifiedName())) != -1) {
+                childNode.setTypeQualifiedName(paramRealList.get(i));
             }
-            targetList.add(paramNode);
+            try {
+                decorate(childNode);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            childNode.setArray(array);
+            targetList.add(childNode);
         }
+        paramNode.setChildren(targetList);
         return targetList;
     }
 
@@ -75,6 +85,9 @@ public class ObjectParser {
     }
 
     private static void genericityFilter(ParamNode paramNode) {
+        if (CollectionUtils.isNotEmpty(paramNode.getGenericityList())) {
+            return;
+        }
         String type = paramNode.getTypeQualifiedName();
         int left = type.indexOf('<');
         int right = type.lastIndexOf('>');
@@ -83,21 +96,7 @@ public class ObjectParser {
             String[] split = substring.split(Constants.SPLITOR);
             paramNode.setTypeQualifiedName(type.substring(0, left));
             List<String> stringArrayList = new ArrayList<>(Arrays.asList(split));
-            List<ParamNode> target = new ArrayList<>();
-            for (String s : stringArrayList) {
-                ParamNode parse;
-                try {
-                    parse = new ParamNode();
-                    parse.setTypeQualifiedName(s);
-                    ObjectParser.decorate(parse, null);
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                    parse = new ParamNode();
-                    parse.setTypeQualifiedName(s);
-                }
-                target.add(parse);
-            }
-            paramNode.setGenericityList(target);
+            paramNode.setGenericityList(stringArrayList);
             paramNode.setGenericity(true);
         } else {
             paramNode.setGenericity(false);
@@ -108,5 +107,4 @@ public class ObjectParser {
     private static void entityFilter(ParamNode paramNode) {
         paramNode.setEntity(!Utils.isBaseClass(paramNode.getTypeQualifiedName()));
     }
-
 }

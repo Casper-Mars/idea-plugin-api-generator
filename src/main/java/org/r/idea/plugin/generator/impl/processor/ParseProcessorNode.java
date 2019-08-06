@@ -62,12 +62,7 @@ public class ParseProcessorNode extends AbstractProcessorNode<Context> {
             throw new RuntimeException(sb.toString());
         }
         context.setInterfaceNode(interfaceNode);
-        /*拷贝实体容器中的实体*/
-        List<ParamNode> allValues = EntityContainer.getAllValues();
-        List<Node> target = new ArrayList<>();
-        allValues.forEach(t -> target.add(t.clone()));
-        context.setEntityNode(target);
-//        context.setEntityNode(EntityContainer.getAllValues().stream().map(t -> (Node) t).collect(Collectors.toList()));
+        EntityContainer.erase();
         return true;
     }
 
