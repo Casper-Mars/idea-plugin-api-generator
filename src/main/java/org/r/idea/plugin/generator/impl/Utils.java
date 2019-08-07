@@ -6,6 +6,7 @@ import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocToken;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
@@ -77,11 +78,16 @@ public class Utils {
     /**
      * 根据给定的注释集合构造注释字符串
      *
-     * @param desc 给定的注释集合
+     * @param doc 给定的注释
      */
-    public static String getDocCommentDesc(PsiElement[] desc) {
+    public static String getDocCommentDesc(PsiDocComment doc) {
+
+        if (doc == null) {
+            return "";
+        }
+        PsiElement[] desc = doc.getDescriptionElements();
         StringBuilder sb = new StringBuilder();
-        if (desc == null || desc.length == 0) {
+        if (desc.length == 0 || desc[0] == null) {
             return "";
         }
         for (PsiElement tmp : desc) {

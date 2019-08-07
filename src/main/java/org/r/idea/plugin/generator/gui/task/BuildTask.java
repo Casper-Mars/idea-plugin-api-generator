@@ -73,7 +73,7 @@ public class BuildTask extends Task.Backgroundable {
                 .addNext(new ParseProcessorNode())
                 .addNext(new BuildProcessorNode())
                 .addNext(new SaveFileProcessorNode())
-//                .addNext(new JarProcessorNode())
+                .addNext(new JarProcessorNode())
 //                .addNext(new UploadProcessorNode())
         ;
 

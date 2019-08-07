@@ -34,6 +34,11 @@ public interface Constants {
      * 临时的java文件目录
      */
     String TMP_JAVA_DIR = "java/";
+
+    /**
+     * 临时的xml文件目录
+     */
+    String TMP_XML_DIR = "xml/";
     /**
      * 临时的class文件目录
      */
@@ -49,6 +54,10 @@ public interface Constants {
      */
     String JAR_MARKDOWN_PATH = "BOOT-INF/classes/markdown/";
 
+    /**
+     * xml文件在jar包中的位置
+     */
+    String JAR_XML_PATH = "BOOT-INF/classes/interface/xml/";
     /**
      * 临时生成的容器jar包的位置
      */

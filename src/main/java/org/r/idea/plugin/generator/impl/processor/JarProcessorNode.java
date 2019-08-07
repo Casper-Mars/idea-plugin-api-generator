@@ -6,10 +6,9 @@ import org.r.idea.plugin.generator.core.probe.Probe;
 import org.r.idea.plugin.generator.core.processor.AbstractProcessorNode;
 import org.r.idea.plugin.generator.impl.Constants;
 import org.r.idea.plugin.generator.impl.builder.appender.AppenderChain;
-import org.r.idea.plugin.generator.impl.builder.appender.ClassAppender;
 import org.r.idea.plugin.generator.impl.builder.appender.ContainJarAppender;
 import org.r.idea.plugin.generator.impl.builder.appender.MarkdownAppender;
-import org.r.idea.plugin.generator.utils.CollectionUtils;
+import org.r.idea.plugin.generator.impl.builder.appender.XmlAppender;
 import org.r.idea.plugin.generator.utils.FileUtils;
 import org.r.idea.plugin.generator.utils.StringUtils;
 
@@ -20,7 +19,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.jar.JarOutputStream;
-import java.util.stream.Collectors;
 
 public class JarProcessorNode extends AbstractProcessorNode<Context> {
 
@@ -31,12 +29,6 @@ public class JarProcessorNode extends AbstractProcessorNode<Context> {
      */
     private String contarinerJar = "/container.jar";
 
-    /**
-     * 依赖jar在本jar包中的位置
-     */
-    private String dependenciesJar = "/dependencies.jar";
-
-    private String copyOfDependenciesJar = "lib/dependencies.jar";
 
     /**
      * 具体节点的处理过程
@@ -52,26 +44,13 @@ public class JarProcessorNode extends AbstractProcessorNode<Context> {
             return false;
         }
         String workSpace = configurations.getWorkSpace();
-        String srcDir = context.getSrcDir();
         Probe fileProbe = context.getFileProbe();
-        if (StringUtils.isEmpty(workSpace) || StringUtils.isEmpty(srcDir)) {
+        if (StringUtils.isEmpty(workSpace)) {
             throw new RuntimeException("缺少输出路径");
         }
 
-        /*查询所有的源文件*/
-        List<File> fileList = fileProbe
-                .searchFile(srcDir, pathname -> pathname.getName().endsWith(".java"));
-        List<String> srcJava = fileList.stream().map(File::getAbsolutePath).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(srcJava)) {
-            System.out.println("源文件不存在");
-            return false;
-        }
-        /*复制编译环境*/
-        copyJar(dependenciesJar, workSpace + copyOfDependenciesJar);
         /*复制容器*/
         copyJar(contarinerJar, workSpace + Constants.COPYOFCONTARINERJAR);
-        /*编译源文件,并储存为临时文件*/
-        compile(srcJava, workSpace);
         /*获取appender链*/
         List<JarFileAppender> appenderChain = getAppenderChain(context);
         /*copy容器*/
@@ -137,7 +116,7 @@ public class JarProcessorNode extends AbstractProcessorNode<Context> {
         int i = 0;
 
         filenames[i++] = "-classpath";
-        filenames[i++] = workSpace + copyOfDependenciesJar;
+//        filenames[i++] = workSpace + copyOfDependenciesJar;
         filenames[i++] = "-d";
         filenames[i++] = classOutputPath;
         filenames[i++] = "-encoding";
@@ -181,11 +160,10 @@ public class JarProcessorNode extends AbstractProcessorNode<Context> {
      * @return
      */
     private List<JarFileAppender> getAppenderChain(Context context) {
-        String workSpace = context.getConfigurations().getWorkSpace();
         String markdownPath = context.getConfigurations().getMarkdownPath();
         AppenderChain appenderChain = new AppenderChain();
         appenderChain
-                .addAppender(new ClassAppender(workSpace + Constants.TMP_CLASS_DIR))
+                .addAppender(new XmlAppender())
                 .addAppender(new MarkdownAppender(markdownPath))
                 .addAppender(new ContainJarAppender());
         return appenderChain.getChain();

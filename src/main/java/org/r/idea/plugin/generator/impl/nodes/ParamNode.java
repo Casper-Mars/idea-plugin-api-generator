@@ -27,9 +27,9 @@ public class ParamNode extends Node {
     private List<String> genericityList;
 
     /**
-     * 父类全称
+     * 父类信息
      */
-    private String superClass;
+    private ParamNode superClass;
 
     /**
      * 是否实体
@@ -130,11 +130,11 @@ public class ParamNode extends Node {
         this.genericityList = genericityList;
     }
 
-    public String getSuperClass() {
+    public ParamNode getSuperClass() {
         return superClass;
     }
 
-    public void setSuperClass(String superClass) {
+    public void setSuperClass(ParamNode superClass) {
         this.superClass = superClass;
     }
 

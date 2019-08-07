@@ -3,11 +3,13 @@ package org.r.idea.plugin.generator.impl.parser;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.*;
+import com.intellij.psi.javadoc.PsiDocComment;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.nodes.Node;
 import org.r.idea.plugin.generator.impl.Utils;
 import org.r.idea.plugin.generator.impl.nodes.ParamNode;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
+import org.r.idea.plugin.generator.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,20 +51,28 @@ public class PojoParser {
             ParamNode child = new ParamNode();
             child.setTypeQualifiedName(field.getType().getCanonicalText());
             child.setName(field.getName());
+            child.setDesc(Utils.getDocCommentDesc(field.getDocComment()));
             children.add(child);
         }
         paramNode.setSuperClass(getSuperClassName(target));
         return paramNode;
     }
 
-    private static String getSuperClassName(PsiClass target) {
+    private static ParamNode getSuperClassName(PsiClass target) {
         PsiClass superClass = target.getSuperClass();
         if (superClass == null) {
-            return "";
+            return null;
         }
-        String superClassName = superClass.getQualifiedName();
-        String s = getSuperRealTypeParamList(target);
-        return superClassName + s;
+        ParamNode sucl = new ParamNode();
+        String qualifiedName = superClass.getQualifiedName();
+        if (StringUtils.isEmpty(qualifiedName)) {
+            return null;
+        } else {
+            sucl.setTypeQualifiedName(qualifiedName);
+        }
+        List<String> superRealTypeParamList = getSuperRealTypeParamList(target);
+        sucl.setGenericityList(superRealTypeParamList);
+        return sucl;
     }
 
     private static List<String> getTypeParamList(PsiClass target) {
@@ -77,27 +87,22 @@ public class PojoParser {
         return result;
     }
 
-    private static String getSuperRealTypeParamList(PsiClass target) {
+    private static List<String> getSuperRealTypeParamList(PsiClass target) {
 
         PsiClassType[] extendsListTypes = target.getExtendsListTypes();
-
+        List<String> result = new ArrayList<>();
         if (extendsListTypes.length == 0 || extendsListTypes[0] == null) {
-            return "";
+            return result;
         }
         PsiClassType extendsListType = extendsListTypes[0];
         PsiType[] typeParameters = extendsListType.getParameters();
         if (typeParameters.length == 0 || typeParameters[0] == null) {
-            return "";
+            return result;
         }
-        StringBuilder sb = new StringBuilder();
-        sb.append('<');
-        for (int i = 0; i < typeParameters.length; i++) {
-            sb.append(typeParameters[i].getCanonicalText());
-            if (i < typeParameters.length - 1) {
-                sb.append(',');
-            }
+        for (PsiType typeParameter : typeParameters) {
+            result.add(typeParameter.getCanonicalText());
         }
-        sb.append('>');
-        return sb.toString();
+        return result;
     }
+
 }

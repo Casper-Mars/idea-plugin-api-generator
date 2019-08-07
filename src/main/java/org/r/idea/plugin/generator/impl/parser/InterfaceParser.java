@@ -29,9 +29,7 @@ public class InterfaceParser implements Parser {
         }
         InterfaceNode interfaceNode = new InterfaceNode();
         /*设置描述*/
-        if (target.getDocComment() != null) {
-            interfaceNode.setDesc(Utils.getDocCommentDesc(target.getDocComment().getDescriptionElements()));
-        }
+        interfaceNode.setDesc(Utils.getDocCommentDesc(target.getDocComment()));
         interfaceNode.setName(target.getName());
         interfaceNode.setBaseUrl(getBaseUrl(target));
         /*处理方法*/

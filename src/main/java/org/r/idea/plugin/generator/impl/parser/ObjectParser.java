@@ -35,13 +35,32 @@ public class ObjectParser {
     }
 
 
+    /**
+     * 处理父类
+     *
+     * @param paramNode
+     * @param prototype
+     * @throws ClassNotFoundException
+     */
     private static void initSuperClass(ParamNode paramNode, ParamNode prototype) throws ClassNotFoundException {
-        String prototypeSuperClass = prototype.getSuperClass();
-        if (StringUtils.isEmpty(prototypeSuperClass)) {
+        ParamNode superClass = prototype.getSuperClass();
+        if (superClass == null) {
             return;
         }
-        ParamNode superClass = new ParamNode();
-        superClass.setTypeQualifiedName(prototype.getSuperClass());
+
+        List<String> paramRealList = paramNode.getGenericityList();
+        List<String> paramTypeList = superClass.getGenericityList();
+
+        if (CollectionUtils.isNotEmpty(paramTypeList) && CollectionUtils.isEmpty(paramRealList)) {
+            paramTypeList.forEach(t -> paramRealList.add("Object"));
+        }
+        int i = -1;
+        for (int j = 0; j < paramTypeList.size(); j++) {
+            if ((i = paramTypeList.indexOf(paramTypeList.get(j))) != -1) {
+                paramTypeList.set(j, paramRealList.get(i));
+            }
+        }
+
         decorate(superClass);
         if (CollectionUtils.isNotEmpty(superClass.getChildren())) {
             paramNode.getChildren().addAll(superClass.getChildren());

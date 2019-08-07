@@ -5,7 +5,9 @@ import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiNameValuePair;
+
 import java.util.List;
+
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.impl.Constants;
 import org.r.idea.plugin.generator.impl.Utils;
@@ -29,9 +31,7 @@ public class MethodParser {
             return null;
         }
         /*设置描述*/
-        if (target.getDocComment() != null) {
-            methodNode.setDesc(Utils.getDocCommentDesc(target.getDocComment().getDescriptionElements()));
-        }
+        methodNode.setDesc(Utils.getDocCommentDesc(target.getDocComment()));
         /*设置方法名*/
         methodNode.setName(target.getName());
         /*处理参数和返回值*/

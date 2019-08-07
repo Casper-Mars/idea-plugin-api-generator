@@ -34,7 +34,7 @@ public class SaveFileProcessorNode extends AbstractProcessorNode<Context> {
             return false;
         }
         Probe probe = context.getFileProbe();
-        String filePrefix = workSpace + Constants.TMP_JAVA_DIR;
+        String filePrefix = workSpace + Constants.TMP_XML_DIR;
         for (FileBO fileBO : fileBOS) {
             if (StringUtils.isEmpty(fileBO.getPresentName())) {
                 // TODO: 2019/6/24 文件名为空时应该记录下来
@@ -42,7 +42,6 @@ public class SaveFileProcessorNode extends AbstractProcessorNode<Context> {
             }
             probe.writerFile(filePrefix + fileBO.getPresentName(), fileBO.getContent());
         }
-        context.setSrcDir(filePrefix);
         context.updateProgress(0.1f);
         return true;
     }

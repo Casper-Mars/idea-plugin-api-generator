@@ -126,7 +126,7 @@ public class XmlBuilder {
         Element param = new Element(XmlTag.PARAMETER_TAG);
 
         param.setAttribute(XmlTag.ISREQUIRE_ATTR, paramNode.isRequired() ? "true" : "false");
-        param.setAttribute(XmlTag.ISJSON_ATTR, paramNode.isJson() ? "true" : "false");
+        param.setAttribute(XmlTag.ISARRAY_ATTR, paramNode.isArray() ? "true" : "false");
         param.setAttribute(XmlTag.ISENTITY_ATTR, paramNode.isEntity() ? "true" : "false");
 
         /*name标签*/
