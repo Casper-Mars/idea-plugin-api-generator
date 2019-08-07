@@ -4,31 +4,21 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.local.CoreLocalFileSystem;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiJavaFile;
-import com.intellij.psi.PsiManager;
-
+import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiJavaFileImpl;
+import org.jdom2.Document;
+import org.jdom2.output.XMLOutputter;
+import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
+import org.r.idea.plugin.generator.core.indicators.InterfaceIndicator;
+import org.r.idea.plugin.generator.core.probe.Probe;
+import org.r.idea.plugin.generator.impl.Utils;
+import org.r.idea.plugin.generator.utils.CollectionUtils;
+import org.r.idea.plugin.generator.utils.StringUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.jdom2.Document;
-import org.jdom2.output.XMLOutputter;
-import org.r.idea.plugin.generator.core.beans.FileBO;
-import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
-import org.r.idea.plugin.generator.core.indicators.InterfaceIndicator;
-import org.r.idea.plugin.generator.core.probe.Probe;
-import org.r.idea.plugin.generator.impl.Constants;
-import org.r.idea.plugin.generator.impl.Utils;
-import org.r.idea.plugin.generator.impl.indicators.InterfaceIndicatorImpl;
-import org.r.idea.plugin.generator.utils.CollectionUtils;
-import org.r.idea.plugin.generator.utils.StringUtils;
 
 /**
  * @ClassName Probe

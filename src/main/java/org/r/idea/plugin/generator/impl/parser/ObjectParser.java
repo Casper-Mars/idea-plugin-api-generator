@@ -6,7 +6,6 @@ import org.r.idea.plugin.generator.impl.Constants;
 import org.r.idea.plugin.generator.impl.Utils;
 import org.r.idea.plugin.generator.impl.nodes.ParamNode;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
-import org.r.idea.plugin.generator.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

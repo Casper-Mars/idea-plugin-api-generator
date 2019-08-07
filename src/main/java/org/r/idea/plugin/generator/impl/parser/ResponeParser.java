@@ -3,7 +3,6 @@ package org.r.idea.plugin.generator.impl.parser;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.javadoc.PsiDocTag;
-import com.intellij.psi.javadoc.PsiDocToken;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.nodes.Node;
 import org.r.idea.plugin.generator.impl.Constants;

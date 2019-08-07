@@ -46,13 +46,13 @@ public class ParamParser {
                 paramNodeList.add(paramNode);
             }
             paramNode.setTypeQualifiedName(getType(parameter));
-            paramNode.setJson(
-                    Utils.isContainAnnotation("org.springframework.web.bind.annotation.RequestBody", parameter.getAnnotations()));
+            /*是否为json实体*/
+            paramNode.setJson(isJson(parameter));
             /*修饰参数节点,添加参数的属性信息*/
             ObjectParser.decorate(paramNode);
             /*是否必传的*/
-            requeryFilter(paramNode);
-            /*是否为json实体*/
+            paramNode.setRequired(isRequire(parameter));
+            /*参数名称*/
             paramNode.setName(parameter.getName());
         }
         return paramNodeList;
@@ -93,12 +93,30 @@ public class ParamParser {
         return result;
     }
 
+    /**
+     * 获取参数类型
+     *
+     * @param parameter 参数psi对象
+     * @return
+     */
     private String getType(PsiParameter parameter) {
         return parameter.getType().getCanonicalText();
     }
 
-    private void requeryFilter(ParamNode paramNode) {
-        paramNode.setRequired(false);
+    /**
+     * 判断参数是否必传
+     * javax.validation.constraints.NotNull
+     *
+     * @param parameter
+     */
+    private boolean isRequire(PsiParameter parameter) {
+
+        return Utils.isContainAnnotation("javax.validation.constraints.NotNull", parameter.getAnnotations());
     }
+
+    private boolean isJson(PsiParameter parameter) {
+        return Utils.isContainAnnotation("org.springframework.web.bind.annotation.RequestBody", parameter.getAnnotations());
+    }
+
 
 }

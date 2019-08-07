@@ -1,13 +1,8 @@
 package org.r.idea.plugin.generator.impl.parser;
 
-import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
 import com.intellij.psi.PsiAnnotation;
-import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiNameValuePair;
-
-import java.util.List;
-
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.impl.Constants;
 import org.r.idea.plugin.generator.impl.Utils;
@@ -45,6 +40,12 @@ public class MethodParser {
     }
 
 
+    /**
+     * 检查接口是否可用
+     * @param node
+     * @param target
+     * @return
+     */
     private boolean isAvailable(MethodNode node, PsiMethod target) {
 
         PsiAnnotation[] annotations = target.getAnnotations();
@@ -79,6 +80,12 @@ public class MethodParser {
     }
 
 
+    /**
+     * 设置接口的url和请求方法
+     * @param methodNode
+     * @param annotation
+     * @param methodEnum
+     */
     private void processUrlAndMethod(MethodNode methodNode, PsiAnnotation annotation, RequestMethodEnum methodEnum) {
 
         for (PsiNameValuePair pair : annotation.getParameterList().getAttributes()) {
