@@ -62,11 +62,23 @@ public class ObjectParser {
 
         decorate(superClass);
         if (CollectionUtils.isNotEmpty(superClass.getChildren())) {
-            paramNode.getChildren().addAll(superClass.getChildren());
+            for (Node child : superClass.getChildren()) {
+                ParamNode node = (ParamNode) child;
+                if (paramNode.isRequired()) {
+                    node.setRequired(paramNode.isRequired());
+                    paramNode.getChildren().add(node);
+                }
+            }
         }
     }
 
 
+    /**
+     * 处理子属性
+     *
+     * @param paramNode
+     * @param prototype
+     */
     private static void initChildren(ParamNode paramNode, ParamNode prototype) {
         List<Node> children = prototype.getChildren();
         List<Node> targetList = new ArrayList<>();
@@ -87,6 +99,7 @@ public class ObjectParser {
             arrayFilter(childNode);
             boolean array = childNode.isArray();
             genericityFilter(childNode);
+            childNode.setRequired(paramNode.isRequired());
             if (childNode.isGenericity()) {
                 List<String> tmpList = childNode.getGenericityList();
                 for (int j = 0; j < tmpList.size(); j++) {

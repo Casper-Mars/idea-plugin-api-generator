@@ -52,6 +52,7 @@ public class PojoParser {
             child.setTypeQualifiedName(field.getType().getCanonicalText());
             child.setName(field.getName());
             child.setDesc(Utils.getDocCommentDesc(field.getDocComment()));
+            child.setRequired(Utils.isRequire(field));
             children.add(child);
         }
         paramNode.setSuperClass(getSuperClassName(target));
@@ -104,5 +105,6 @@ public class PojoParser {
         }
         return result;
     }
+
 
 }

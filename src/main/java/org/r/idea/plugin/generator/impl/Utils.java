@@ -2,10 +2,7 @@ package org.r.idea.plugin.generator.impl;
 
 
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiAnnotation;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
+import com.intellij.psi.*;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocToken;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -136,5 +133,16 @@ public class Utils {
         return target;
     }
 
+
+    /**
+     * 判断参数是否必传
+     * javax.validation.constraints.NotNull
+     *
+     * @param parameter
+     */
+    public static boolean isRequire(PsiVariable parameter) {
+
+        return Utils.isContainAnnotation("javax.validation.constraints.NotNull", parameter.getAnnotations());
+    }
 
 }

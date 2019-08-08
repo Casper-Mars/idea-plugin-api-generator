@@ -1,8 +1,6 @@
 package org.r.idea.plugin.generator.impl.parser;
 
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiParameter;
+import com.intellij.psi.*;
 import com.intellij.psi.impl.source.javadoc.PsiDocParamRef;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocTag;
@@ -48,10 +46,10 @@ public class ParamParser {
             paramNode.setTypeQualifiedName(getType(parameter));
             /*是否为json实体*/
             paramNode.setJson(isJson(parameter));
+            /*是否必传的*/
+            paramNode.setRequired(Utils.isRequire(parameter));
             /*修饰参数节点,添加参数的属性信息*/
             ObjectParser.decorate(paramNode);
-            /*是否必传的*/
-            paramNode.setRequired(isRequire(parameter));
             /*参数名称*/
             paramNode.setName(parameter.getName());
         }
@@ -101,17 +99,6 @@ public class ParamParser {
      */
     private String getType(PsiParameter parameter) {
         return parameter.getType().getCanonicalText();
-    }
-
-    /**
-     * 判断参数是否必传
-     * javax.validation.constraints.NotNull
-     *
-     * @param parameter
-     */
-    private boolean isRequire(PsiParameter parameter) {
-
-        return Utils.isContainAnnotation("javax.validation.constraints.NotNull", parameter.getAnnotations());
     }
 
     private boolean isJson(PsiParameter parameter) {
