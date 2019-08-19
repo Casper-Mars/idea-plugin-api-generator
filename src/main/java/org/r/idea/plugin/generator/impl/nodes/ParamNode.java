@@ -1,5 +1,6 @@
 package org.r.idea.plugin.generator.impl.nodes;
 
+import org.r.idea.plugin.generator.core.beans.RuleBO;
 import org.r.idea.plugin.generator.core.nodes.Node;
 
 import java.util.List;
@@ -15,22 +16,18 @@ public class ParamNode extends Node {
      * 类型简称
      */
     private String typeShortName;
-
     /**
      * 类型全称
      */
     private String typeQualifiedName;
-
     /**
      * 当参数为泛型时的元素名
      */
     private List<String> genericityList;
-
     /**
      * 父类信息
      */
     private ParamNode superClass;
-
     /**
      * 是否实体
      */
@@ -39,7 +36,6 @@ public class ParamNode extends Node {
      * 请求时是否为json格式
      */
     private boolean isJson;
-
     /**
      * 请求时是否为数组
      */
@@ -52,6 +48,11 @@ public class ParamNode extends Node {
      * 是否必传
      */
     private boolean isRequired;
+    /**
+     * 参数的限制条件
+     */
+    private RuleBO rule;
+
 
     public ParamNode() {
     }
@@ -136,6 +137,14 @@ public class ParamNode extends Node {
 
     public void setSuperClass(ParamNode superClass) {
         this.superClass = superClass;
+    }
+
+    public RuleBO getRule() {
+        return rule;
+    }
+
+    public void setRule(RuleBO rule) {
+        this.rule = rule;
     }
 
     @Override

@@ -6,6 +6,7 @@ import org.r.idea.plugin.generator.core.upload.Deliveryman;
 
 import java.io.*;
 
+// TODO: 19-8-19 完善上传功能，添加错误异常处理，增强健壮性
 public class DeliverymanImpl implements Deliveryman {
 
 
@@ -110,7 +111,7 @@ public class DeliverymanImpl implements Deliveryman {
             String mvCmd = "mv " + remoteFilePath + "api-doc-t.jar " + remoteFilePath + "api-doc.jar";
             execCmd(session, mvCmd);
             System.out.println("run");
-            String runCmd = "java -jar -Dserver.port=18180 " + remoteFilePath + "api-doc.jar > logfile.log 2>&1";
+            String runCmd = "java -jar -Dserver.port=18080 " + remoteFilePath + "api-doc.jar > logfile.log 2>&1";
             execCmd(session, runCmd);
             System.out.println("finish");
             session.disconnect();
