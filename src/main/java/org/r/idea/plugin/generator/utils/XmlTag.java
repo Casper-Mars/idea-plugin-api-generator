@@ -107,5 +107,25 @@ public class XmlTag {
      */
     public final static String DESC_ATTR = "desc";
 
+    /**
+     * 限制条件标签
+     */
+    public final static String RULE_TAG = "rule";
+
+    /**
+     * 限制条件标签-正则表达式
+     */
+    public final static String RULE_PATTERN_TAG = "pattern";
+
+    /**
+     * 限制条件标签-最小值
+     */
+    public final static String RULE_DECIMALMIN_TAG = "decimalMin";
+
+    /**
+     * 限制条件标签-最大值
+     */
+    public final static String RULE_DECIMALMAX_TAG = "decimalMax";
+
 
 }

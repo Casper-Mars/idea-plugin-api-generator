@@ -4,10 +4,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.*;
 import com.intellij.psi.javadoc.PsiDocComment;
+import org.r.idea.plugin.generator.core.beans.RuleBO;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.nodes.Node;
 import org.r.idea.plugin.generator.impl.Utils;
 import org.r.idea.plugin.generator.impl.nodes.ParamNode;
+import org.r.idea.plugin.generator.impl.service.RuleService;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
 import org.r.idea.plugin.generator.utils.StringUtils;
 
@@ -22,8 +24,17 @@ import java.util.List;
 public class PojoParser {
 
 
+    /**
+     * 转化实体
+     *
+     * @param qualifiedName
+     * @return
+     * @throws ClassNotFoundException
+     */
     public static ParamNode parseEntity(String qualifiedName) throws ClassNotFoundException {
 
+        /*获取限制条件service*/
+        RuleService ruleService = RuleService.getInstance();
         /*获取实体类*/
         Project defaultProject = ProjectManager.getInstance().getOpenProjects()[0];
         PsiClass target = Utils.getClass(qualifiedName, defaultProject);
@@ -53,12 +64,19 @@ public class PojoParser {
             child.setName(field.getName());
             child.setDesc(Utils.getDocCommentDesc(field.getDocComment()));
             child.setRequired(Utils.isRequire(field));
+            child.setRule(ruleService.getRule(field));
             children.add(child);
         }
         paramNode.setSuperClass(getSuperClassName(target));
         return paramNode;
     }
 
+    /**
+     * 获取父类信息
+     *
+     * @param target
+     * @return
+     */
     private static ParamNode getSuperClassName(PsiClass target) {
         PsiClass superClass = target.getSuperClass();
         if (superClass == null) {
@@ -76,6 +94,12 @@ public class PojoParser {
         return sucl;
     }
 
+    /**
+     * 获取泛型的参数列表
+     *
+     * @param target
+     * @return
+     */
     private static List<String> getTypeParamList(PsiClass target) {
         PsiTypeParameter[] typeParameters = target.getTypeParameters();
         List<String> result = new ArrayList<>();
@@ -88,6 +112,12 @@ public class PojoParser {
         return result;
     }
 
+    /**
+     * 获取继承的父类的泛型参数列表
+     *
+     * @param target
+     * @return
+     */
     private static List<String> getSuperRealTypeParamList(PsiClass target) {
 
         PsiClassType[] extendsListTypes = target.getExtendsListTypes();

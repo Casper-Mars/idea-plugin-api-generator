@@ -1,6 +1,7 @@
 package org.r.idea.plugin.generator.impl.builder;
 
 import org.jdom2.Element;
+import org.r.idea.plugin.generator.core.beans.RuleBO;
 import org.r.idea.plugin.generator.core.nodes.Node;
 import org.r.idea.plugin.generator.impl.nodes.InterfaceNode;
 import org.r.idea.plugin.generator.impl.nodes.MethodNode;
@@ -144,6 +145,10 @@ public class XmlBuilder {
         desc.setText(paramNode.getDesc());
         param.addContent(desc);
 
+        /*rule标签*/
+        Element rule = buildRule(paramNode);
+        param.addContent(rule);
+
         if (CollectionUtils.isNotEmpty(paramNode.getChildren())) {
             /*children标签*/
             Element children = new Element(XmlTag.CHILDREN_TAG);
@@ -156,5 +161,34 @@ public class XmlBuilder {
         return param;
     }
 
+    private Element buildRule(ParamNode paramNode) {
+        Element rule = new Element(XmlTag.RULE_TAG);
+        RuleBO ruleBO = paramNode.getRule();
+        if (ruleBO == null) {
+            ruleBO = new RuleBO();
+        }
+        /*pattern*/
+        Element pattern = new Element(XmlTag.RULE_PATTERN_TAG);
+        if (ruleBO.getPattern() != null) {
+            pattern.setText(ruleBO.getPattern());
+        }
+        rule.addContent(pattern);
+
+        /*decimalMax*/
+        Element decimalMax = new Element(XmlTag.RULE_DECIMALMAX_TAG);
+        if (ruleBO.getMax() != null) {
+            decimalMax.setText(ruleBO.getMax().toString());
+        }
+        rule.addContent(decimalMax);
+
+        /*decimalMax*/
+        Element decimalMin = new Element(XmlTag.RULE_DECIMALMIN_TAG);
+        if (ruleBO.getMin() != null) {
+            decimalMin.setText(ruleBO.getMin().toString());
+        }
+        rule.addContent(decimalMin);
+
+        return rule;
+    }
 
 }
