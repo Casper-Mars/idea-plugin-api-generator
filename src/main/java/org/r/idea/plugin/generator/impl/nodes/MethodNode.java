@@ -9,12 +9,46 @@ import org.r.idea.plugin.generator.core.nodes.Node;
  **/
 public class MethodNode extends Node {
 
-
+    /**
+     * 请求响应内容
+     */
     private Node responed;
 
+    /**
+     * 请求方式
+     */
     private String requestType;
 
+    /**
+     * 请求的url
+     */
     private String url;
+
+    /**
+     * 请求接受的media type
+     */
+    private String consumes;
+
+    /**
+     * 请求返回的media type
+     */
+    private String produces;
+
+    public String getConsumes() {
+        return consumes;
+    }
+
+    public void setConsumes(String consumes) {
+        this.consumes = consumes;
+    }
+
+    public String getProduces() {
+        return produces;
+    }
+
+    public void setProduces(String produces) {
+        this.produces = produces;
+    }
 
     public String getUrl() {
         return url;

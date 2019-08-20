@@ -26,6 +26,16 @@ public interface Constants {
     String REQUESTMAPPING_ATTR_METHOD = "method";
 
     /**
+     * 请求接受的media type
+     */
+    String REQUESTMAPPING_ATTR_CONSUMES = "consumes";
+
+    /**
+     * 请求返回的media type
+     */
+    String REQUESTMAPPING_ATTR_PRODUCES = "produces";
+
+    /**
      * 注释的@return标签
      */
     String DOCCOMMENT_RETURN = "return";

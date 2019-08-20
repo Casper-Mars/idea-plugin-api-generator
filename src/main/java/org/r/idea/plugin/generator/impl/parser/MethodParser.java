@@ -42,6 +42,7 @@ public class MethodParser {
 
     /**
      * 检查接口是否可用
+     *
      * @param node
      * @param target
      * @return
@@ -82,6 +83,7 @@ public class MethodParser {
 
     /**
      * 设置接口的url和请求方法
+     *
      * @param methodNode
      * @param annotation
      * @param methodEnum
@@ -94,6 +96,12 @@ public class MethodParser {
             }
             if (pair.getAttributeName().equals(Constants.REQUESTMAPPING_ATTR_METHOD)) {
                 methodNode.setRequestType(splitMethod(pair.getLiteralValue()));
+            }
+            if (pair.getAttributeName().equals(Constants.REQUESTMAPPING_ATTR_CONSUMES)) {
+                methodNode.setConsumes(pair.getLiteralValue());
+            }
+            if (pair.getAttributeName().equals(Constants.REQUESTMAPPING_ATTR_PRODUCES)) {
+                methodNode.setProduces(pair.getLiteralValue());
             }
         }
         /*如果注解中没有指定请求方法，则取枚举定义好的*/
