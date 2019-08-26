@@ -66,8 +66,8 @@ public class ObjectParser {
                 ParamNode node = (ParamNode) child;
                 if (paramNode.isRequired()) {
                     node.setRequired(paramNode.isRequired());
-                    paramNode.getChildren().add(node);
                 }
+                paramNode.getChildren().add(node);
             }
         }
     }
@@ -131,6 +131,7 @@ public class ObjectParser {
 
     private static void genericityFilter(ParamNode paramNode) {
         if (CollectionUtils.isNotEmpty(paramNode.getGenericityList())) {
+            paramNode.setGenericity(true);
             return;
         }
         String type = paramNode.getTypeQualifiedName();
