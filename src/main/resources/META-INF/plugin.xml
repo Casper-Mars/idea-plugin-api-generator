@@ -8,8 +8,8 @@
   <description><![CDATA[
 <h1>文档生成器</h1>
 <h2>说明</h2>
-<p>   生成器基于spring boot、swagger2和肖玉明的swagger-ui。设置好参数后一键生成文档，并打成可运行jar包，只需在命令行中执行java -jar
-   container.jar，即可在浏览器中访问:localhost:8080/doc.html</p>
+<p>   生成器基于spring boot、vue。设置好参数后一键生成文档，并打成可运行jar包，只需在命令行中执行java -jar
+   api-doc.jar，即可在浏览器中访问:localhost:18080/api-doc,如果设置了服务器参数，还能在生成后自动上传到服务器</p>
    <h2>使用</h2>
 <ol><li>配置参数：
     <em> 打开File-&gt;Setting-&gt;Order Settings-&gt;api-generator
