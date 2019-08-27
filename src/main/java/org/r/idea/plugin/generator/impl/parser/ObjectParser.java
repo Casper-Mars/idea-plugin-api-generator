@@ -115,7 +115,7 @@ public class ObjectParser {
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-            childNode.setArray(array);
+            childNode.setArray(array || childNode.isArray());
             targetList.add(childNode);
         }
         paramNode.setChildren(targetList);

@@ -10,6 +10,8 @@ import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.impl.nodes.ParamNode;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
 
+import javax.sql.rowset.BaseRowSet;
+
 /**
  * @ClassName Utils
  * @Author Casper
@@ -40,8 +42,10 @@ public class Utils {
             qualifiedName = qualifiedName.replace(Constants.ARRAYFLAG, "");
         } else if (qualifiedName.contains(Constants.LISTFLAG)) {
             int start = qualifiedName.indexOf(Constants.LISTFLAG);
-            int end = qualifiedName.lastIndexOf('>');
-            qualifiedName = qualifiedName.substring(start + Constants.LISTFLAG.length(), end);
+            if (start == 0) {
+                int end = qualifiedName.lastIndexOf('>');
+                qualifiedName = qualifiedName.substring(start + Constants.LISTFLAG.length(), end);
+            }
         }
         return qualifiedName;
     }

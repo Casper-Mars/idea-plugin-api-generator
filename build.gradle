@@ -30,7 +30,7 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
-        2.0.0:更换前端框架
+        2.0.0:更换前端框架,使用vue
       """
 }
 
