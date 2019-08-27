@@ -6,7 +6,9 @@ import org.r.idea.plugin.generator.core.upload.Deliveryman;
 
 import java.io.*;
 
-// TODO: 19-8-19 完善上传功能，添加错误异常处理，增强健壮性
+/**
+ * @author casper
+ */ // TODO: 19-8-19 完善上传功能，添加错误异常处理，增强健壮性
 public class DeliverymanImpl implements Deliveryman {
 
 

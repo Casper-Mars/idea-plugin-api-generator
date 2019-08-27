@@ -7,6 +7,9 @@ import org.r.idea.plugin.generator.core.upload.Deliveryman;
 import org.r.idea.plugin.generator.impl.upload.DeliverymanImpl;
 import org.r.idea.plugin.generator.utils.StringUtils;
 
+/**
+ * @author casper
+ */
 public class UploadProcessorNode extends AbstractProcessorNode<Context> {
 
     private String title = "uploading";
