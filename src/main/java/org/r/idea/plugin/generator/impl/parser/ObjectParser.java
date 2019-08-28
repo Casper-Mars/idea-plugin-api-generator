@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * @author casper
+ */
 public class ObjectParser {
 
 
@@ -99,7 +102,7 @@ public class ObjectParser {
             arrayFilter(childNode);
             boolean array = childNode.isArray();
             genericityFilter(childNode);
-            childNode.setRequired(paramNode.isRequired());
+            childNode.setRequired(paramNode.isRequired() || childNode.isRequired());
             if (childNode.isGenericity()) {
                 List<String> tmpList = childNode.getGenericityList();
                 for (int j = 0; j < tmpList.size(); j++) {
