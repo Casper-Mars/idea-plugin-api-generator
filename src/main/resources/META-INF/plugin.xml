@@ -1,83 +1,50 @@
 <idea-plugin>
-  <id>Casper/api-generator</id>
-  <name>api-generator</name>
-  <vendor email="326713510@qq.com" url="">Casper</vendor>
+    <id>Casper/api-generator</id>
+    <name>api-generator</name>
+    <vendor email="326713510@qq.com" url="">Casper</vendor>
 
-  <idea-version since-build="181" until-build="191.*"/>
+    <idea-version since-build="181" until-build="191.*"/>
 
-  <description><![CDATA[
+    <description><![CDATA[
 <h1>文档生成器</h1>
 <h2>说明</h2>
 <p>   生成器基于spring boot、vue。设置好参数后一键生成文档，并打成可运行jar包，只需在命令行中执行java -jar
    api-doc.jar，即可在浏览器中访问:localhost:18080/api-doc,如果设置了服务器参数，还能在生成后自动上传到服务器</p>
    <h2>使用</h2>
-<ol><li>配置参数：
-    <em> 打开File-&gt;Setting-&gt;Order Settings-&gt;api-generator
-    </em> 选择接口文件所在的目录，推荐选择直接的父目录
-    <em> 选择输出的位置目录。注意输出目录必须有写权限
-    </em> 如果有额外的markdown类型的接口文档要引用，则选择该目录
-    * 基本类型枚举作用详情请参阅：<a href="https://github.com/Casper-Mars/idea-plugin-api-generator">github</a></li><li>生成文档：
-    <em> 点击菜单栏的Tools，再点击Generate api doc选择即可生成文档到配置的输出目录
-    </em> 或者直接按快捷键：shift+ctrl+alt+G</li></ol>
-<h2>接口解析规则</h2>
-<ul><li>根据注释解析</li><li>@param 表示参数，后接参数描述。如果没有注释指定，则直接取方法的入参。例子：@param name 姓名</li><li>@return 表示返回值，后接返回值类型全称。如果没有注释指定，则直接取方法的回参。例子：@return java.lang.String</li><li>集合类型只支持数组</li><li>泛型只支持一元泛型，并会解析为数组，二元或更高的认为是object</li><li>对于基本类（jdk自带的）和部分不需要解析的第三方类需要在设置界面设置好，设置格式为类名之间逗号隔开。例子：Boolean,Integer</li><li>注意：一定要规范好基本类的设置，避免出现深度解析卡死线程</li><li>注意：接口的入参和回参如果是实体类，应该注意避免出现自引用的情况，目前的版本是忽略自引用的属性</li></ul>
-<h2>例子</h2>
-<pre><code> /**
- * 添加
- * @param info 信息
- * @return java.lang.String[]
- */
- @PostMapping(&quot;/add&quot;)
- public List&lt;String&gt; hello(@RequestBody InfoDTO info){
- }</code></pre>
+   <p>详情：<a href="https://github.com/Casper-Mars/idea-plugin-api-generator">github</a></p>
+]]></description>
 
-<p>如上例子会解析出接口：
-  <em> 名称：hello
-  </em> 描述：添加
-  <em> 请求方式：POST
-  </em> 参数：
-       <em> 名称：info
-       </em> 描述：信息
-       <em> 请求类型：body
-       </em> 参数格式：json
-  <em> 返回值：
-       </em> 类型：String
-       * 格式：array</p>
-       <h2>模式：debug和生产</h2>
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
 
-<ul><li>debug模式：在此模式下，会保留程序运行过程中的临时文件，包括java源文件、class文件、依赖jar包和容器jar包。debug模式只有开发时才能用，一旦部署后就是生产模式了。</li><li>生产模式：在此模式下，只会保留最终的产物</li></ul>
-    ]]></description>
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+        <applicationConfigurable id="api-generator" displayName="api-generator"
+                                 instance="org.r.idea.plugin.generator.gui.config.PluginConfig"/>
+        <!--    <projectService serviceInterface="org.r.idea.plugin.generator.gui.service.StorageService"-->
+        <!--      serviceImplementation="org.r.idea.plugin.generator.gui.service.impl.StorageServiceImpl"/>-->
+    </extensions>
 
-  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-       on how to target different products -->
-  <!-- uncomment to enable plugin in all products
-  <depends>com.intellij.modules.lang</depends>
-  -->
+    <project-components>
+        <component>
+            <interface-class>org.r.idea.plugin.generator.gui.service.StorageService</interface-class>
+            <implementation-class>org.r.idea.plugin.generator.gui.service.impl.StorageServiceImpl</implementation-class>
+        </component>
+    </project-components>
 
-  <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
-    <applicationConfigurable id="api-generator" displayName="api-generator"
-      instance="org.r.idea.plugin.generator.gui.config.PluginConfig"/>
-    <!--    <projectService serviceInterface="org.r.idea.plugin.generator.gui.service.StorageService"-->
-    <!--      serviceImplementation="org.r.idea.plugin.generator.gui.service.impl.StorageServiceImpl"/>-->
-  </extensions>
-
-  <project-components>
-    <component>
-      <interface-class>org.r.idea.plugin.generator.gui.service.StorageService</interface-class>
-      <implementation-class>org.r.idea.plugin.generator.gui.service.impl.StorageServiceImpl</implementation-class>
-    </component>
-  </project-components>
-
-  <actions>
-    <action id="Generator.api.generate" class="org.r.idea.plugin.generator.gui.actions.Generate" text="Generate api doc"
-      description="generate the api doc">
-      <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl alt G"/>
-      <add-to-group group-id="ToolsMenu" anchor="last"/>
-    </action>
-    <!--    <action id="Generator.api.TestFindClass" class="org.r.idea.plugin.generator.gui.actions.TestFindClass"-->
-    <!--      text="TestFindClass" description="TestFindClass">-->
-    <!--      <add-to-group group-id="ToolsMenu" anchor="last"/>-->
-    <!--    </action>-->
-  </actions>
+    <actions>
+        <action id="Generator.api.generate" class="org.r.idea.plugin.generator.gui.actions.Generate"
+                text="Generate api doc"
+                description="generate the api doc">
+            <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl alt G"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <!--    <action id="Generator.api.TestFindClass" class="org.r.idea.plugin.generator.gui.actions.TestFindClass"-->
+        <!--      text="TestFindClass" description="TestFindClass">-->
+        <!--      <add-to-group group-id="ToolsMenu" anchor="last"/>-->
+        <!--    </action>-->
+    </actions>
 </idea-plugin>
