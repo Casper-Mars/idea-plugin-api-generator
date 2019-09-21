@@ -114,7 +114,10 @@ public class ObjectParser {
                 childNode.setTypeQualifiedName(paramRealList.get(i));
             }
             try {
-                decorate(childNode);
+                /*如果是自引用，则跳过不解析，否则进行解析*/
+                if (!childNode.getTypeQualifiedName().equals(paramNode.getTypeQualifiedName())) {
+                    decorate(childNode);
+                }
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }

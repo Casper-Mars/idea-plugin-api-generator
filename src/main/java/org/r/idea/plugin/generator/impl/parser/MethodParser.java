@@ -1,8 +1,6 @@
 package org.r.idea.plugin.generator.impl.parser;
 
-import com.intellij.psi.PsiAnnotation;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiNameValuePair;
+import com.intellij.psi.*;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.impl.Constants;
 import org.r.idea.plugin.generator.impl.Utils;
@@ -95,7 +93,8 @@ public class MethodParser {
                 methodNode.setUrl(pair.getLiteralValue());
             }
             if (pair.getAttributeName().equals(Constants.REQUESTMAPPING_ATTR_METHOD)) {
-                methodNode.setRequestType(splitMethod(pair.getLiteralValue()));
+                PsiAnnotationMemberValue value = pair.getValue();
+                methodNode.setRequestType(splitMethod(value));
             }
             if (pair.getAttributeName().equals(Constants.REQUESTMAPPING_ATTR_CONSUMES)) {
                 methodNode.setConsumes(pair.getLiteralValue());
@@ -120,7 +119,22 @@ public class MethodParser {
     /**
      * 转化形如{RequestMethod.POST,RequestMethod.GET}为POST/GET的字符串
      */
-    private String splitMethod(String method) {
+    private String splitMethod(PsiAnnotationMemberValue value) {
+        String method = "";
+        if (value instanceof PsiReferenceExpression) {
+            method = ((PsiReferenceExpression) value).getCanonicalText();
+        } else if (value instanceof PsiArrayInitializerMemberValue) {
+            StringBuilder sb = new StringBuilder();
+            PsiAnnotationMemberValue[] initializers = ((PsiArrayInitializerMemberValue) value).getInitializers();
+            if (initializers[0] != null) {
+                for (PsiAnnotationMemberValue tmp : initializers) {
+                    if (tmp.getReference() != null) {
+                        sb.append(tmp.getReference().getCanonicalText()).append(Constants.SPLITOR);
+                    }
+                }
+                method = sb.toString();
+            }
+        }
         if (StringUtils.isEmpty(method)) {
             return "";
         }

@@ -9,6 +9,7 @@ public abstract class AbstractProcessorNode<T> implements ProcessorNode<T> {
 
     private ProcessorNode<T> next;
 
+    @Override
     public ProcessorNode<T> addNext(ProcessorNode<T> next) {
         this.next = next;
         return next;

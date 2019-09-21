@@ -113,7 +113,7 @@ public class DeliverymanImpl implements Deliveryman {
             String mvCmd = "mv " + remoteFilePath + "api-doc-t.jar " + remoteFilePath + "api-doc.jar";
             execCmd(session, mvCmd);
             System.out.println("run");
-            String runCmd = "java -jar -Dserver.port=18080 " + remoteFilePath + "api-doc.jar > logfile.log 2>&1";
+            String runCmd = "java -jar -Dserver.port=18080 " + remoteFilePath + "api-doc.jar > " + remoteFilePath + "logfile.log 2>&1";
             execCmd(session, runCmd);
             System.out.println("finish");
             session.disconnect();
@@ -167,6 +167,24 @@ public class DeliverymanImpl implements Deliveryman {
         exec.setCommand(cmd);
         exec.connect();
         int exitStatus = exec.getExitStatus();
+        if (exitStatus == 1) {
+            InputStream errStream = null;
+            try {
+                errStream = exec.getErrStream();
+
+                int available = errStream.available();
+                System.out.println("error");
+                BufferedReader reader = new BufferedReader(new InputStreamReader(errStream));
+                String line = null;
+                StringBuilder sb = new StringBuilder();
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line);
+                }
+                System.out.println(sb.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         exec.disconnect();
     }
 

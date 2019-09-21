@@ -4,9 +4,10 @@ plugins {
 }
 
 def mavenRep = localMaven
+def plugin_version = "2.1.4"
 
 group "org.r.idea.plugin"
-version "2.0.2" + "-" + ideaVersion
+version plugin_version + "-" + ideaVersion
 
 sourceCompatibility = 1.8
 
@@ -30,7 +31,7 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
-        2.0.2:修复必传解析出错问题
+        2.1.4:修改请求方法解析错误的问题
       """
 }
 
