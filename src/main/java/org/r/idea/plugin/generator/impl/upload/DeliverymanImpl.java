@@ -89,35 +89,23 @@ public class DeliverymanImpl implements Deliveryman {
      */
     @Override
     public void doDeliver() throws UplodaException {
-
-
-        JSch jSch = new JSch();
         try {
-            Session session = jSch.getSession(remoteUsername, remoteIp, port);
-            if (session == null) {
-                throw new UplodaException("无法打开链接");
-            }
-            session.setPassword(password);
-            session.setConfig("StrictHostKeyChecking", "no");
-            session.connect(3000);
 
             /*上传jar包*/
             System.out.println("uploading .......");
-            uploadJar(session);
+            uploadJar();
             System.out.println("uploading finish");
             /*检查有没有相同的jar包在跑，有则kill*/
             System.out.println("check");
             String checkCmd = "kill -9 `ps -ef | grep api-doc.jar | grep -v grep | awk '{print $2}'`";
-            execCmd(session, checkCmd);
+            execCmd(checkCmd);
             System.out.println("mv");
             String mvCmd = "mv " + remoteFilePath + "api-doc-t.jar " + remoteFilePath + "api-doc.jar";
-            execCmd(session, mvCmd);
+            execCmd(mvCmd);
             System.out.println("run");
-            String runCmd = "java -jar -Dserver.port=18080 " + remoteFilePath + "api-doc.jar > " + remoteFilePath + "logfile.log 2>&1";
-            execCmd(session, runCmd);
+            String runCmd = "java -jar " + remoteFilePath + "api-doc.jar > " + remoteFilePath + "logfile.log 2>&1";
+            execCmd(runCmd);
             System.out.println("finish");
-            session.disconnect();
-
         } catch (JSchException | FileNotFoundException | SftpException e) {
             e.printStackTrace();
             throw new UplodaException("上传有误，检查网络链接以及服务器密码资料");
@@ -128,13 +116,13 @@ public class DeliverymanImpl implements Deliveryman {
     /**
      * 上传jar包
      *
-     * @param session
      * @throws JSchException
      * @throws SftpException
      * @throws FileNotFoundException
      */
-    private void uploadJar(Session session) throws JSchException, SftpException, FileNotFoundException {
+    private void uploadJar() throws JSchException, SftpException, FileNotFoundException {
 
+        Session session = getSession();
         /*获取信道*/
         ChannelSftp sftp = (ChannelSftp) session.openChannel("sftp");
         /*获取文件输入流*/
@@ -148,6 +136,7 @@ public class DeliverymanImpl implements Deliveryman {
             throw new FileNotFoundException();
         }
         sftp.disconnect();
+        session.disconnect();
     }
 
     /**
@@ -161,31 +150,38 @@ public class DeliverymanImpl implements Deliveryman {
         return new FileInputStream(file);
     }
 
-    private void execCmd(Session session, String cmd) throws JSchException {
+    private void execCmd(String cmd) throws JSchException {
+        Session session = getSession();
         /*获取ssh信道*/
         ChannelExec exec = (ChannelExec) session.openChannel("exec");
         exec.setCommand(cmd);
         exec.connect();
         int exitStatus = exec.getExitStatus();
-        if (exitStatus == 1) {
-            InputStream errStream = null;
-            try {
-                errStream = exec.getErrStream();
-
-                int available = errStream.available();
-                System.out.println("error");
-                BufferedReader reader = new BufferedReader(new InputStreamReader(errStream));
-                String line = null;
-                StringBuilder sb = new StringBuilder();
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line);
-                }
-                System.out.println(sb.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         exec.disconnect();
+        session.disconnect();
     }
+
+    /**
+     * 获取会话
+     *
+     * @return 会话
+     */
+    private Session getSession() {
+        JSch jSch = new JSch();
+        Session session = null;
+        try {
+            session = jSch.getSession(remoteUsername, remoteIp, port);
+            if (session == null) {
+                throw new UplodaException("无法打开链接");
+            }
+            session.setPassword(password);
+            session.setConfig("StrictHostKeyChecking", "no");
+            session.connect(3000);
+        } catch (JSchException e) {
+            e.printStackTrace();
+        }
+        return session;
+    }
+
 
 }
