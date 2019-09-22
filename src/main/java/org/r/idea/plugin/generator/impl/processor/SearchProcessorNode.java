@@ -2,6 +2,7 @@ package org.r.idea.plugin.generator.impl.processor;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
 import org.r.idea.plugin.generator.core.config.ConfigBean;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.probe.Probe;
@@ -38,7 +39,7 @@ public class SearchProcessorNode extends AbstractProcessorNode<Context> {
         if (CollectionUtils.isEmpty(interfaceFilePaths)) {
             return false;
         }
-        List<PsiClass> allInterfaceClass = new ArrayList<>();
+        List<PsiElement> allInterfaceClass = new ArrayList<>();
         Probe fileProbe = new FileProbe();
         StringBuilder sb = new StringBuilder();
         ApplicationManager.getApplication().runReadAction(() -> {

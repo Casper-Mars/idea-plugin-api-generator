@@ -1,6 +1,6 @@
 package org.r.idea.plugin.generator.core.parser;
 
-import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
 import org.r.idea.plugin.generator.core.config.ServerManager;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.nodes.Node;
@@ -17,6 +17,13 @@ public interface Parser {
         return ServerManager.getServer(Parser.class);
     }
 
-    Node parse(PsiClass target) throws ClassNotFoundException;
+    /**
+     * 根据class对象转化出信息
+     *
+     * @param target class对象
+     * @return
+     * @throws ClassNotFoundException
+     */
+    Node parse(PsiElement target) throws ClassNotFoundException;
 
 }

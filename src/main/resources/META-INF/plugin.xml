@@ -47,4 +47,5 @@
         <!--      <add-to-group group-id="ToolsMenu" anchor="last"/>-->
         <!--    </action>-->
     </actions>
+    <depends>org.jetbrains.kotlin</depends>
 </idea-plugin>

@@ -2,13 +2,16 @@ package org.r.idea.plugin.generator.impl.processor;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
+import org.jetbrains.kotlin.psi.KtClass;
 import org.r.idea.plugin.generator.core.config.ConfigBean;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.nodes.Node;
 import org.r.idea.plugin.generator.core.parser.Parser;
 import org.r.idea.plugin.generator.core.processor.AbstractProcessorNode;
 import org.r.idea.plugin.generator.impl.parser.EntityContainer;
-import org.r.idea.plugin.generator.impl.parser.InterfaceParser;
+import org.r.idea.plugin.generator.impl.parser.JavaInterfaceParser;
+import org.r.idea.plugin.generator.ktimpl.parser.KtInterfaceParser;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -35,20 +38,27 @@ public class ParseProcessorNode extends AbstractProcessorNode<Context> {
         if (configurations == null) {
             return false;
         }
-        List<PsiClass> interfaceClass = context.getInterfaceClass();
+        List<PsiElement> interfaceClass = context.getInterfaceClass();
         if (CollectionUtils.isEmpty(interfaceClass)) {
             return false;
         }
         List<Node> interfaceNode = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
-        Parser parser = new InterfaceParser();
+        Parser javaParser = new JavaInterfaceParser();
+        Parser ktParser = new KtInterfaceParser();
         ApplicationManager.getApplication().runReadAction(() -> {
             float total = (1.0f / interfaceClass.size()) * 0.4f;
-            for (PsiClass target : interfaceClass) {
+            for (PsiElement target : interfaceClass) {
                 try {
-                    System.out.println(target.getQualifiedName());
-                    Node parse = parser.parse(target);
-                    interfaceNode.add(parse);
+                    Node parse = null;
+                    if (target instanceof PsiClass) {
+                        parse = javaParser.parse(target);
+                    } else if (target instanceof KtClass) {
+                        parse = ktParser.parse(target);
+                    }
+                    if (parse != null) {
+                        interfaceNode.add(parse);
+                    }
                     context.updateProgress(total);
                 } catch (ClassNotFoundException e) {
                     sb.append(e.getMsg());

@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.List;
 
+import com.intellij.psi.PsiElement;
 import org.jdom2.Document;
 import org.r.idea.plugin.generator.core.beans.FileBO;
 import org.r.idea.plugin.generator.core.config.ServerManager;
@@ -23,7 +24,7 @@ public interface Probe {
         return ServerManager.getServer(Probe.class);
     }
 
-    List<PsiClass> getAllInterfaceClass(List<String> interfaceFilePath) throws ClassNotFoundException;
+    List<PsiElement> getAllInterfaceClass(List<String> interfaceFilePath) throws ClassNotFoundException;
 
     /**
      * 字符串写入文件，并指定文件名

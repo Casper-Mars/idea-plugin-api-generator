@@ -3,6 +3,7 @@ package org.r.idea.plugin.generator.impl.processor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
 import org.r.idea.plugin.generator.core.beans.FileBO;
 import org.r.idea.plugin.generator.core.config.ConfigBean;
 import org.r.idea.plugin.generator.core.nodes.Node;
@@ -41,7 +42,7 @@ public class Context {
     /**
      * 接口类
      */
-    private List<PsiClass> interfaceClass;
+    private List<PsiElement> interfaceClass;
 
     /**
      * 接口节点
@@ -129,11 +130,11 @@ public class Context {
         this.configurations = configurations;
     }
 
-    public List<PsiClass> getInterfaceClass() {
+    public List<PsiElement> getInterfaceClass() {
         return interfaceClass;
     }
 
-    public void setInterfaceClass(List<PsiClass> interfaceClass) {
+    public void setInterfaceClass(List<PsiElement> interfaceClass) {
         this.interfaceClass = interfaceClass;
     }
 

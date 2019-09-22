@@ -1,9 +1,6 @@
 package org.r.idea.plugin.generator.impl.parser;
 
-import com.intellij.psi.PsiAnnotation;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiNameValuePair;
+import com.intellij.psi.*;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.nodes.Node;
 import org.r.idea.plugin.generator.core.parser.Parser;
@@ -16,27 +13,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @ClassName InterfaceParser
+ * @ClassName JavaInterfaceParser
  * @Author Casper
  * @DATE 2019/6/21 17:09
  **/
-public class InterfaceParser implements Parser {
+public class JavaInterfaceParser implements Parser {
 
     @Override
-    public Node parse(PsiClass target) throws ClassNotFoundException {
+    public Node parse(PsiElement target) throws ClassNotFoundException {
         if (target == null) {
             throw new ClassNotFoundException("需要parse的对象不能为空");
         }
+        if (!(target instanceof PsiClass)) {
+            throw new ClassNotFoundException("需要parse的对象不是java class");
+        }
+        PsiClass target0 = (PsiClass) target;
+        System.out.println(target0.getQualifiedName());
         InterfaceNode interfaceNode = new InterfaceNode();
         /*设置描述*/
-        interfaceNode.setDesc(Utils.getDocCommentDesc(target.getDocComment()));
-        interfaceNode.setName(target.getName());
-        interfaceNode.setBaseUrl(getBaseUrl(target));
+        interfaceNode.setDesc(Utils.getDocCommentDesc(target0.getDocComment()));
+        interfaceNode.setName(target0.getName());
+        interfaceNode.setBaseUrl(getBaseUrl(target0));
         /*处理方法*/
         List<Node> methods = new ArrayList<>();
         MethodParser methodParser = new MethodParser();
         try {
-            for (PsiMethod method : target.getMethods()) {
+            for (PsiMethod method : target0.getMethods()) {
                 System.out.println("----" + method.getName());
                 MethodNode methodNode = methodParser.parse(method);
                 if (methodNode == null) {
@@ -47,7 +49,7 @@ public class InterfaceParser implements Parser {
                 System.out.println("----" + method.getName() + "-----finish");
             }
         } catch (ClassNotFoundException e) {
-            e.setMsg(target.getQualifiedName() + "-" + e.getMsg());
+            e.setMsg(target0.getQualifiedName() + "-" + e.getMsg());
             throw e;
         }
         interfaceNode.setChildren(methods);

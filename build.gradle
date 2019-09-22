@@ -8,7 +8,7 @@ def plugin_version = "2.1.5"
 
 group "org.r.idea.plugin"
 version plugin_version + "-" + ideaVersion
-
+def kotlinPlugin = kotlinPlugin0
 sourceCompatibility = 1.8
 
 repositories {
@@ -26,6 +26,7 @@ dependencies {
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     version ideaVersion
+    plugins kotlinPlugin
 
 }
 patchPluginXml {

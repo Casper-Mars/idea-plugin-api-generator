@@ -8,6 +8,8 @@ import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiJavaFileImpl;
 import org.jdom2.Document;
 import org.jdom2.output.XMLOutputter;
+import org.jetbrains.kotlin.psi.KtClass;
+import org.jetbrains.kotlin.psi.KtFile;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.indicators.InterfaceIndicator;
 import org.r.idea.plugin.generator.core.probe.Probe;
@@ -36,17 +38,17 @@ public class FileProbe implements Probe {
      * @param interfaceFilePath 接口文件目录
      */
     @Override
-    public List<PsiClass> getAllInterfaceClass(List<String> interfaceFilePath) throws ClassNotFoundException {
+    public List<PsiElement> getAllInterfaceClass(List<String> interfaceFilePath) throws ClassNotFoundException {
         CoreLocalFileSystem coreLocalFileSystem = new CoreLocalFileSystem();
         Project project = ProjectManager.getInstance().getOpenProjects()[0];
-        List<PsiClass> result = new ArrayList<>();
+        List<PsiElement> result = new ArrayList<>();
         for (String path : interfaceFilePath) {
             VirtualFile pathFile = coreLocalFileSystem.findFileByPath(path);
             if (pathFile == null) {
                 continue;
             }
             PsiDirectory directory = PsiManager.getInstance(project).findDirectory(pathFile);
-            List<PsiClass> classes = getPsiClassRecur(directory);
+            List<PsiElement> classes = getPsiClassRecur(directory);
             if (CollectionUtils.isNotEmpty(classes)) {
                 result.addAll(classes);
             }
@@ -93,11 +95,11 @@ public class FileProbe implements Probe {
      *
      * @param directory 目标目录
      */
-    private List<PsiClass> getPsiClassRecur(PsiDirectory directory) throws ClassNotFoundException {
+    private List<PsiElement> getPsiClassRecur(PsiDirectory directory) throws ClassNotFoundException {
         if (directory == null) {
             return null;
         }
-        List<PsiClass> result = new ArrayList<>();
+        List<PsiElement> result = new ArrayList<>();
         PsiElement[] children = directory.getChildren();
         Project defaultProject = ProjectManager.getInstance().getOpenProjects()[0];
 
@@ -111,9 +113,15 @@ public class FileProbe implements Probe {
                     }
                 }
             } else if (e instanceof PsiDirectory) {
-                List<PsiClass> subClass = getPsiClassRecur((PsiDirectory) e);
+                List<PsiElement> subClass = getPsiClassRecur((PsiDirectory) e);
                 if (CollectionUtils.isNotEmpty(subClass)) {
                     result.addAll(subClass);
+                }
+            } else if (e instanceof KtFile) {
+                PsiElement child = e.getChildren()[e.getChildren().length - 1];
+                if (child instanceof KtClass) {
+                    KtClass ktClass = (KtClass) child;
+                    result.add(ktClass);
                 }
             }
 
