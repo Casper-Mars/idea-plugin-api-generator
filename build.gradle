@@ -4,7 +4,7 @@ plugins {
 }
 
 def mavenRep = localMaven
-def plugin_version = "2.1.5"
+def plugin_version = "2.2.1"
 
 group "org.r.idea.plugin"
 version plugin_version + "-" + ideaVersion
@@ -26,12 +26,12 @@ dependencies {
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
     version ideaVersion
-    plugins kotlinPlugin
+//    plugins kotlinPlugin
 
 }
 patchPluginXml {
     changeNotes """
-        2.1.5:修复文件上传的bug
+        2.2.1:添加序列测试功能
       """
 }
 

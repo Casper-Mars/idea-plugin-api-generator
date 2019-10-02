@@ -3,7 +3,6 @@ package org.r.idea.plugin.generator.impl.processor;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import org.jetbrains.kotlin.psi.KtClass;
 import org.r.idea.plugin.generator.core.config.ConfigBean;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.nodes.Node;
@@ -11,7 +10,6 @@ import org.r.idea.plugin.generator.core.parser.Parser;
 import org.r.idea.plugin.generator.core.processor.AbstractProcessorNode;
 import org.r.idea.plugin.generator.impl.parser.EntityContainer;
 import org.r.idea.plugin.generator.impl.parser.JavaInterfaceParser;
-import org.r.idea.plugin.generator.ktimpl.parser.KtInterfaceParser;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -45,7 +43,7 @@ public class ParseProcessorNode extends AbstractProcessorNode<Context> {
         List<Node> interfaceNode = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         Parser javaParser = new JavaInterfaceParser();
-        Parser ktParser = new KtInterfaceParser();
+//        Parser ktParser = new KtInterfaceParser();
         ApplicationManager.getApplication().runReadAction(() -> {
             float total = (1.0f / interfaceClass.size()) * 0.4f;
             for (PsiElement target : interfaceClass) {
@@ -53,9 +51,10 @@ public class ParseProcessorNode extends AbstractProcessorNode<Context> {
                     Node parse = null;
                     if (target instanceof PsiClass) {
                         parse = javaParser.parse(target);
-                    } else if (target instanceof KtClass) {
-                        parse = ktParser.parse(target);
                     }
+//                    else if (target instanceof KtClass) {
+//                        parse = ktParser.parse(target);
+//                    }
                     if (parse != null) {
                         interfaceNode.add(parse);
                     }

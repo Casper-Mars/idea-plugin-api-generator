@@ -8,8 +8,6 @@ import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PsiJavaFileImpl;
 import org.jdom2.Document;
 import org.jdom2.output.XMLOutputter;
-import org.jetbrains.kotlin.psi.KtClass;
-import org.jetbrains.kotlin.psi.KtFile;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.core.indicators.InterfaceIndicator;
 import org.r.idea.plugin.generator.core.probe.Probe;
@@ -117,13 +115,14 @@ public class FileProbe implements Probe {
                 if (CollectionUtils.isNotEmpty(subClass)) {
                     result.addAll(subClass);
                 }
-            } else if (e instanceof KtFile) {
-                PsiElement child = e.getChildren()[e.getChildren().length - 1];
-                if (child instanceof KtClass) {
-                    KtClass ktClass = (KtClass) child;
-                    result.add(ktClass);
-                }
             }
+//            else if (e instanceof KtFile) {
+//                PsiElement child = e.getChildren()[e.getChildren().length - 1];
+//                if (child instanceof KtClass) {
+//                    KtClass ktClass = (KtClass) child;
+//                    result.add(ktClass);
+//                }
+//            }
 
         }
         return result;

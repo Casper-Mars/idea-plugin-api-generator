@@ -6,12 +6,9 @@ import com.intellij.psi.*;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.javadoc.PsiDocToken;
 import com.intellij.psi.search.GlobalSearchScope;
-import org.jetbrains.kotlin.kdoc.psi.api.KDoc;
 import org.r.idea.plugin.generator.core.exceptions.ClassNotFoundException;
 import org.r.idea.plugin.generator.impl.nodes.ParamNode;
 import org.r.idea.plugin.generator.utils.CollectionUtils;
-
-import javax.sql.rowset.BaseRowSet;
 
 /**
  * @ClassName Utils
