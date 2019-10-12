@@ -4,7 +4,7 @@ plugins {
 }
 
 def mavenRep = localMaven
-def plugin_version = "2.2.1"
+def plugin_version = "2.2.3"
 
 group "org.r.idea.plugin"
 version plugin_version + "-" + ideaVersion
@@ -31,7 +31,7 @@ intellij {
 }
 patchPluginXml {
     changeNotes """
-        2.2.1:添加序列测试功能
+        2.2.3:修复容器模拟请求时，处理json参数的问题
       """
 }
 
